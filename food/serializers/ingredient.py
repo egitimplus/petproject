@@ -12,6 +12,7 @@ class IngredientSerializer(FlexFieldsModelSerializer):
             'name',
             'slug',
             'allergen',
+            'slug',
             'active',
         )
 

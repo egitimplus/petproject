@@ -9,9 +9,11 @@ class FoodTypeSerializer(FlexFieldsModelSerializer):
         fields = (
             'id',
             'name',
+            'slug',
             'active'
         )
 
         extra_kwargs = {
             'slug': {'required': False},
+            'active': {'write_only': True},
         }

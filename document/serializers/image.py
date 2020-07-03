@@ -10,9 +10,11 @@ class ImageSerializer(FlexFieldsModelSerializer):
             'id',
             'name',
             'file',
+            'slug',
             'active',
         )
 
         extra_kwargs = {
             'slug': {'required': False},
+            'active': {'write_only': True},
         }

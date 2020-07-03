@@ -14,10 +14,12 @@ class FoodSerializer(FlexFieldsModelSerializer):
             'ingredient_score',
             'nutrition_score',
             'content',
+            'active'
         )
 
         extra_kwargs = {
             'slug': {'required': False},
+            'active': {'write_only': True},
         }
 
         expandable_fields = {

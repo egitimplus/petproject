@@ -3,12 +3,18 @@ from django.contrib import admin
 from django.conf.urls.static import static
 from django.conf import settings
 from django.urls import path
+from food.views import FoodViewSet
+from rest_framework.routers import DefaultRouter
 
+
+router = DefaultRouter()
+router.register(r'food', FoodViewSet, basename='Food')
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^food/', include('food.urls')),
+    url(r'^', include(router.urls))
 ]
+
 
 if settings.DEBUG:
     import debug_toolbar

@@ -10,10 +10,10 @@ class CompanySerializer(FlexFieldsModelSerializer):
             'id',
             'name',
             'active',
-            'created',
-            'updated'
+            'slug'
         )
 
         extra_kwargs = {
             'slug': {'required': False},
+            'active': {'write_only': True},
         }
