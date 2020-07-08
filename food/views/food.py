@@ -11,6 +11,7 @@ class FoodViewSet(FlexFieldsModelViewSet):
     permit_list_expands = ['image','brand']
     serializer_class = FoodSerializer
     pagination_class = CustomPagination
+    lookup_field = 'slug'
 
     def get_queryset(self):
         queryset = Food.objects.filter(active=1).all()

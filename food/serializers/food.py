@@ -1,10 +1,12 @@
 from rest_flex_fields import FlexFieldsModelSerializer
 from food.models import Food
 
+
 class FoodSerializer(FlexFieldsModelSerializer):
 
     class Meta:
         model = Food
+        lookup_field = 'slug'
         fields = (
             'id',
             'name',
