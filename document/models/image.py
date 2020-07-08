@@ -1,5 +1,6 @@
 from django.db import models
 from django.template.defaultfilters import slugify
+from versatileimagefield.fields import VersatileImageField, PPOIField
 import itertools
 
 
@@ -8,7 +9,12 @@ class Image(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
     slug = models.SlugField(unique=True, max_length=255)
-    file = models.FileField(blank=False, null=False)
+    image = VersatileImageField(
+        'Image',
+        upload_to='images/',
+        ppoi_field='image_ppoi'
+    )
+    image_ppoi = PPOIField()
 
     def __str__(self):
         return self.name

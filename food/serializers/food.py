@@ -1,7 +1,6 @@
 from rest_flex_fields import FlexFieldsModelSerializer
 from food.models import Food
 
-
 class FoodSerializer(FlexFieldsModelSerializer):
 
     class Meta:
@@ -14,11 +13,13 @@ class FoodSerializer(FlexFieldsModelSerializer):
             'ingredient_score',
             'nutrition_score',
             'content',
+            'brand',
+            'type',
             'active'
         )
 
         extra_kwargs = {
-            'slug': {'required': False},
+            'slug': {'required': False, 'read_only':True},
             'active': {'write_only': True},
         }
 
@@ -26,11 +27,12 @@ class FoodSerializer(FlexFieldsModelSerializer):
             'ingredients': ('food.IngredientSerializer', {'many': True}),
             'health': ('food.FoodForSerializer', {'many': True}),
             'stage': ('food.FoodStageSerializer', {'many': True}),
-            'brand': 'food.BrandSerializer',
+            'brand': 'company.BrandSerializer',
             'type': 'food.FoodTypeSerializer',
             'image': ('document.ImageSerializer', {'many': True}),
             'calorie': 'food.FoodCalorieSerializer',
             'guaranteed': 'food.FoodGuaranteedSerializer',
             'drymatter': 'food.FoodDryMatterSerializer',
-
         }
+
+

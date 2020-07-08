@@ -14,6 +14,7 @@ class Food(models.Model):
     active = models.PositiveSmallIntegerField(default=1)
     ingredient_score = models.PositiveSmallIntegerField()
     nutrition_score = models.PositiveSmallIntegerField()
+    total_score = models.PositiveSmallIntegerField(default=0)
     content = models.TextField()
     ingredients = models.ManyToManyField('food.Ingredient', through='food.FoodIngredient', related_name='foods')
     health = models.ManyToManyField('food.FoodFor', related_name='foods')
@@ -21,6 +22,9 @@ class Food(models.Model):
     image = models.ManyToManyField('document.Image', related_name='foods')
     brand = models.ForeignKey('company.Brand', on_delete=models.CASCADE)
     type = models.ForeignKey('food.FoodType', on_delete=models.CASCADE)
+
+    class Meta:
+        ordering = ['id']
 
     def __str__(self):
         return self.name
