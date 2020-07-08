@@ -6,6 +6,4 @@ from .food_type import FoodTypeSerializer
 from .ingredient_type import IngredientTypeSerializer
 from .ingredient_quality import IngredientQualitySerializer
 from .ingredient_parent import IngredientParentSerializer
-from .food_calorie import FoodCalorieSerializer
-from .food_drymatter import FoodDryMatterSerializer
 from .food_guaranteed import FoodGuaranteedSerializer

@@ -17,6 +17,7 @@ class FoodSerializer(FlexFieldsModelSerializer):
             'content',
             'brand',
             'type',
+            'created',
             'active'
         )
 
@@ -32,9 +33,7 @@ class FoodSerializer(FlexFieldsModelSerializer):
             'brand': 'company.BrandSerializer',
             'type': 'food.FoodTypeSerializer',
             'image': ('document.ImageSerializer', {'many': True}),
-            'calorie': 'food.FoodCalorieSerializer',
             'guaranteed': 'food.FoodGuaranteedSerializer',
-            'drymatter': 'food.FoodDryMatterSerializer',
         }
 
 

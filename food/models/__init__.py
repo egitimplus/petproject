@@ -7,6 +7,4 @@ from .food_for import FoodFor
 from .food_stage import FoodStage
 from .food import Food
 from .food_ingredient import FoodIngredient
-from .calorie import Calorie
 from .guaranteed import Guaranteed
-from .dry_matter import DryMatter
