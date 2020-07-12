@@ -43,6 +43,15 @@ class FoodViewSet(FlexFieldsModelViewSet):
 
             queryset = queryset.filter(query)
 
+        healths = self.request.query_params.get("health", None)
+        if healths is not None:
+            query = Q()
+            for health in healths.split(","):
+                q = Q(health__slug=health)
+                query |= q
+
+            queryset = queryset.filter(query)
+
         total_score = self.request.query_params.get("total_score", None)
         if total_score is not None:
             scores = total_score.split("-")
@@ -110,7 +119,7 @@ class FoodViewSet(FlexFieldsModelViewSet):
                     })
                 filters.append(categories)
 
-            if len(stage) > 1:
+            if len(stage) > 0:
                 stages = {'name': 'Yaş', 'slug': 'stage', 'type': 'check', 'value': [], 'items': []}
                 for s in stage:
                     if s['count']:
@@ -121,7 +130,7 @@ class FoodViewSet(FlexFieldsModelViewSet):
                         })
                 filters.append(stages)
 
-            if len(health) > 1:
+            if len(health) > 0:
                 healths = {'name': 'Sağlık', 'slug': 'health', 'type': 'check', 'value': [], 'items': []}
                 for h in health:
                     if h['count']:

@@ -10,6 +10,11 @@ class FoodStage(models.Model):
     slug = models.SlugField(unique=True, max_length=255)
     active = models.PositiveSmallIntegerField(default=1)
 
+    class Meta:
+        verbose_name = "Life Stage"
+        verbose_name_plural = "Life Stages"
+        ordering = ['name']
+
     def __str__(self):
         return self.name
 

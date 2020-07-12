@@ -1,5 +1,6 @@
 from rest_flex_fields import FlexFieldsModelSerializer
 from food.models import Food
+from food.serializers import FoodIngredientSerializer
 
 
 class FoodSerializer(FlexFieldsModelSerializer):
@@ -18,7 +19,7 @@ class FoodSerializer(FlexFieldsModelSerializer):
             'brand',
             'type',
             'created',
-            'active'
+            'active',
         )
 
         extra_kwargs = {
@@ -36,4 +37,6 @@ class FoodSerializer(FlexFieldsModelSerializer):
             'guaranteed': 'food.FoodGuaranteedSerializer',
         }
 
-
+    def to_representation(self, instance):
+        self.context['food_id'] = instance.id
+        return super(FoodSerializer, self).to_representation(instance)

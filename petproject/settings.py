@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'document',
     'versatileimagefield',
 
+
 ]
 
 MIDDLEWARE = [

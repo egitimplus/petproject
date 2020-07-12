@@ -10,6 +10,12 @@ class IngredientQuality(models.Model):
     slug = models.SlugField(unique=True, max_length=255)
     active = models.PositiveSmallIntegerField(default=1)
 
+
+    class Meta:
+        verbose_name = "Ingredient Quality"
+        verbose_name_plural = "Ingredient Qualities"
+        ordering = ['name']
+
     def __str__(self):
         return self.name
 

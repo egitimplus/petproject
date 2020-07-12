@@ -1,3 +1,4 @@
+from .food_ingredient import FoodIngredientSerializer
 from .ingredient import IngredientSerializer
 from .food import FoodSerializer
 from .food_stage import FoodStageSerializer

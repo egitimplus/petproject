@@ -16,6 +16,9 @@ class Ingredient(models.Model):
     parent = models.ForeignKey('food.IngredientParent', on_delete=models.CASCADE)
     quality = models.ForeignKey('food.IngredientQuality', on_delete=models.CASCADE)
 
+    class Meta:
+        ordering = ['name']
+
     def __str__(self):
         return self.name
 

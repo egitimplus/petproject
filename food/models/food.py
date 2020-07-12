@@ -1,6 +1,7 @@
 from django.db import models
 from django.template.defaultfilters import slugify
 import itertools
+from django.contrib.auth.models import User
 
 
 class Food(models.Model):
@@ -22,9 +23,12 @@ class Food(models.Model):
     image = models.ManyToManyField('document.Image', related_name='foods')
     brand = models.ForeignKey('company.Brand', on_delete=models.CASCADE)
     type = models.ForeignKey('food.FoodType', on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True)
 
     class Meta:
         ordering = ['id']
+        verbose_name = "Cat Food"
+        verbose_name_plural = "Cat Foods"
 
     def __str__(self):
         return self.name

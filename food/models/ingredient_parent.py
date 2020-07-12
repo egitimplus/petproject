@@ -11,6 +11,11 @@ class IngredientParent(models.Model):
     active = models.PositiveSmallIntegerField(default=1)
     allergen = models.PositiveSmallIntegerField()
 
+    class Meta:
+        verbose_name = "Ingredient Parent"
+        verbose_name_plural = "Ingredient Parents"
+        ordering = ['name']
+
     def __str__(self):
         return self.name
 

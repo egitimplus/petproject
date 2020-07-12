@@ -18,3 +18,6 @@ class Guaranteed(models.Model):
     dha = models.FloatField(default=0)
     epa = models.FloatField(default=0)
 
+    def __str__(self):
+        return self.food.name
+

@@ -13,6 +13,11 @@ class IngredientType(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name = "Ingredient Type"
+        verbose_name_plural = "Ingredient Types"
+        ordering = ['name']
+
     def save(self, force_insert=False, force_update=False, using=None):
 
         if not self.id:
