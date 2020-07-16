@@ -3,6 +3,8 @@ from .ingredient import IngredientSerializer
 from .food import FoodSerializer
 from .food_stage import FoodStageSerializer
 from .food_health import FoodForSerializer
+from .food_size import FoodSizeSerializer
+from .food_package import FoodPackageSerializer
 from .food_type import FoodTypeSerializer
 from .ingredient_type import IngredientTypeSerializer
 from .ingredient_quality import IngredientQualitySerializer

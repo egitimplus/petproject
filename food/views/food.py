@@ -1,10 +1,9 @@
 from food.serializers import FoodSerializer
-from food.models import Food
+from food.models import Food, FoodSize
 from rest_flex_fields import FlexFieldsModelViewSet
 from library.pagination import CustomPagination
 from rest_framework.response import Response
-from django.db.models import Count
-from django.db.models import Q
+from django.db.models import Count, Q, Max, Min
 
 
 class FoodViewSet(FlexFieldsModelViewSet):
@@ -43,11 +42,29 @@ class FoodViewSet(FlexFieldsModelViewSet):
 
             queryset = queryset.filter(query)
 
+        packages = self.request.query_params.get("package", None)
+        if packages is not None:
+            query = Q()
+            for package in packages.split(","):
+                q = Q(package__slug=package)
+                query |= q
+
+            queryset = queryset.filter(query)
+
         healths = self.request.query_params.get("health", None)
         if healths is not None:
             query = Q()
             for health in healths.split(","):
                 q = Q(health__slug=health)
+                query |= q
+
+            queryset = queryset.filter(query)
+
+        sizes = self.request.query_params.get("size", None)
+        if sizes is not None:
+            query = Q()
+            for size in sizes.split(","):
+                q = Q(size__slug=size)
                 query |= q
 
             queryset = queryset.filter(query)
@@ -96,6 +113,9 @@ class FoodViewSet(FlexFieldsModelViewSet):
             brand = queryset.values('brand__name', 'brand__slug').order_by('brand').annotate(count=Count('brand'))
             health = queryset.values('health__name', 'health__slug').order_by('health').annotate(count=Count('health'))
             stage = queryset.values('stage__name', 'stage__slug').order_by('stage').annotate(count=Count('stage'))
+            package = queryset.values('package__name', 'package__slug').order_by('package').annotate(count=Count('package'))
+            size = queryset.values('size__name', 'size__slug').order_by('size').annotate(count=Count('size'))
+
 
             filters = list()
 
@@ -130,6 +150,17 @@ class FoodViewSet(FlexFieldsModelViewSet):
                         })
                 filters.append(stages)
 
+            if len(package) > 0:
+                packages = {'name': 'Kutu', 'slug': 'package', 'type': 'check', 'value': [], 'items': []}
+                for p in package:
+                    if p['count']:
+                        packages['items'].append({
+                            'slug': p['package__slug'],
+                            'name': p['package__name'],
+                            'count': p['count']
+                        })
+                filters.append(packages)
+
             if len(health) > 0:
                 healths = {'name': 'Sağlık', 'slug': 'health', 'type': 'check', 'value': [], 'items': []}
                 for h in health:
@@ -140,6 +171,17 @@ class FoodViewSet(FlexFieldsModelViewSet):
                             'count': h['count']
                         })
                 filters.append(healths)
+
+            if len(size) > 0:
+                sizes = {'name': 'Boyut', 'slug': 'size', 'type': 'check', 'value': [], 'items': []}
+                for s in size:
+                    if s['count']:
+                        sizes['items'].append({
+                            'slug': s['size__slug'],
+                            'name': s['size__name'],
+                            'count': s['count']
+                        })
+                filters.append(sizes)
 
             page = self.paginate_queryset(queryset)
             if page is not None:

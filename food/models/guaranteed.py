@@ -7,7 +7,6 @@ class Guaranteed(models.Model):
     fat = models.FloatField(default=0)
     fibre = models.FloatField(default=0)
     ash = models.FloatField(default=0)
-    carbs = models.FloatField()
     moisture = models.FloatField(default=0)
     calcium = models.FloatField(default=0)
     phosphorus = models.FloatField(default=0)

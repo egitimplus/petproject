@@ -23,7 +23,7 @@ class FoodSerializer(FlexFieldsModelSerializer):
         )
 
         extra_kwargs = {
-            'slug': {'required': False, 'read_only':True},
+            'slug': {'required': False, 'read_only': True},
             'active': {'write_only': True},
         }
 
@@ -31,6 +31,8 @@ class FoodSerializer(FlexFieldsModelSerializer):
             'ingredients': ('food.IngredientSerializer', {'many': True}),
             'health': ('food.FoodForSerializer', {'many': True}),
             'stage': ('food.FoodStageSerializer', {'many': True}),
+            'size': ('food.FoodSizeSerializer', {'many': True}),
+            'package': 'food.FoodPackageSerializer',
             'brand': 'company.BrandSerializer',
             'type': 'food.FoodTypeSerializer',
             'image': ('document.ImageSerializer', {'many': True}),
