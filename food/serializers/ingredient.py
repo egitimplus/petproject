@@ -4,6 +4,7 @@ from rest_framework import serializers
 from food.serializers import FoodIngredientSerializer
 from food.models import FoodIngredient
 
+
 class IngredientSerializer(FlexFieldsModelSerializer):
 
     stats = serializers.SerializerMethodField()
@@ -14,7 +15,6 @@ class IngredientSerializer(FlexFieldsModelSerializer):
             'id',
             'name',
             'slug',
-            'allergen',
             'slug',
             'active',
             'stats'

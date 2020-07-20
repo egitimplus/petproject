@@ -9,7 +9,6 @@ class IngredientParentSerializer(FlexFieldsModelSerializer):
         fields = (
             'id',
             'name',
-            'allergen',
             'slug',
             'active'
         )

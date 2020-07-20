@@ -11,7 +11,6 @@ class Ingredient(models.Model):
     active = models.PositiveSmallIntegerField(default=1)
     created = models.DateField(auto_now_add=True)
     updated = models.DateField(auto_now=True)
-    allergen = models.PositiveSmallIntegerField(default=0)
     type = models.ForeignKey('food.IngredientType', on_delete=models.CASCADE)
     parent = models.ForeignKey('food.IngredientParent', on_delete=models.CASCADE)
     quality = models.ForeignKey('food.IngredientQuality', on_delete=models.CASCADE)

@@ -9,7 +9,7 @@ class IngredientParent(models.Model):
     name = models.CharField(max_length=255)
     slug = models.SlugField(unique=True, max_length=255)
     active = models.PositiveSmallIntegerField(default=1)
-    allergen = models.PositiveSmallIntegerField()
+    content = models.TextField()
 
     class Meta:
         verbose_name = "Ingredient Parent"
