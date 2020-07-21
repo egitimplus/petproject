@@ -3,18 +3,17 @@ from django.template.defaultfilters import slugify
 import itertools
 
 
-class IngredientParent(models.Model):
+class Regnum(models.Model):
 
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
     slug = models.SlugField(unique=True, max_length=255)
     active = models.PositiveSmallIntegerField(default=1)
     content = models.TextField()
-    regnum = models.ForeignKey('food.Regnum', on_delete=models.CASCADE)
 
     class Meta:
-        verbose_name = "Ingredient Parent"
-        verbose_name_plural = "Ingredient Parents"
+        verbose_name = "Alem"
+        verbose_name_plural = "Alemler"
         ordering = ['name']
 
     def __str__(self):
@@ -27,8 +26,8 @@ class IngredientParent(models.Model):
             self.slug = slugify(self.name)
 
             for x in itertools.count(1):
-                if not IngredientParent.objects.filter(slug=self.slug).exists():
+                if not Regnum.objects.filter(slug=self.slug).exists():
                     break
                 self.slug = '%s-%d' % (self.slug, x)
 
-        super(IngredientParent, self).save()
+        super(Regnum, self).save()

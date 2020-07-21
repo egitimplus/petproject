@@ -1,3 +1,4 @@
+from .regnum import Regnum
 from .ingredient_parent import IngredientParent
 from .ingredient_type import IngredientType
 from .ingredient import Ingredient

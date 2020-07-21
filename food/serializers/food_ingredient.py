@@ -7,6 +7,7 @@ class FoodIngredientSerializer(FlexFieldsModelSerializer):
     class Meta:
         model = FoodIngredient
         fields = (
+            'dehydrated_percent',
             'ingredient_percent',
             'top_ingredient',
         )

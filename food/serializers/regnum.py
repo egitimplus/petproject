@@ -1,11 +1,11 @@
-from food.models import IngredientParent
+from food.models import Regnum
 from rest_flex_fields import FlexFieldsModelSerializer
 
 
-class IngredientParentSerializer(FlexFieldsModelSerializer):
+class RegnumSerializer(FlexFieldsModelSerializer):
 
     class Meta:
-        model = IngredientParent
+        model = Regnum
         fields = (
             'id',
             'name',
@@ -16,8 +16,4 @@ class IngredientParentSerializer(FlexFieldsModelSerializer):
         extra_kwargs = {
             'slug': {'required': False, 'read_only':True},
             'active': {'write_only': True},
-        }
-
-        expandable_fields = {
-            'regnum': 'food.RegnumSerializer',
         }

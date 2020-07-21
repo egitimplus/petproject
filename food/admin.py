@@ -1,5 +1,5 @@
 from django.contrib import admin
-from food.models import Food, Guaranteed, FoodFor, FoodStage, FoodType, Ingredient, IngredientType, IngredientQuality, IngredientParent, FoodSize, FoodPackage
+from food.models import Regnum, Food, Guaranteed, FoodFor, FoodStage, FoodType, Ingredient, IngredientType, IngredientQuality, IngredientParent, FoodSize, FoodPackage
 from django.db.models import Count
 # Register your models here.
 
@@ -103,4 +103,8 @@ class IngredientParentAdmin(admin.ModelAdmin):
 
 @admin.register(FoodPackage)
 class FoodPackageAdmin(admin.ModelAdmin):
+    readonly_fields = ["slug"]
+
+@admin.register(Regnum)
+class RegnumAdmin(admin.ModelAdmin):
     readonly_fields = ["slug"]

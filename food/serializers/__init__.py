@@ -8,5 +8,6 @@ from .food_package import FoodPackageSerializer
 from .food_type import FoodTypeSerializer
 from .ingredient_type import IngredientTypeSerializer
 from .ingredient_quality import IngredientQualitySerializer
+from .regnum import RegnumSerializer
 from .ingredient_parent import IngredientParentSerializer
 from .food_guaranteed import FoodGuaranteedSerializer
