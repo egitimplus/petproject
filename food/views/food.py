@@ -24,6 +24,15 @@ class FoodViewSet(FlexFieldsModelViewSet):
 
             queryset = queryset.filter(query)
 
+        companies = self.request.query_params.get("company", None)
+        if companies is not None:
+            query = Q()
+            for company in companies.split(","):
+                q = Q(brand__company__slug=company)
+                query |= q
+
+            queryset = queryset.filter(query)
+
         types = self.request.query_params.get("type", None)
         if types is not None:
             query = Q()
@@ -114,10 +123,21 @@ class FoodViewSet(FlexFieldsModelViewSet):
             health = queryset.values('health__name', 'health__slug').order_by('health').annotate(count=Count('health'))
             stage = queryset.values('stage__name', 'stage__slug').order_by('stage').annotate(count=Count('stage'))
             package = queryset.values('package__name', 'package__slug').order_by('package').annotate(count=Count('package'))
-            size = queryset.values('size__name', 'size__slug').order_by('size').annotate(count=Count('size'))
+            #size = queryset.values('size__name', 'size__slug').order_by('size').annotate(count=Count('size'))
+            company = queryset.values('brand__company__name', 'brand__company__slug').order_by('brand__company').annotate(count=Count('brand__company'))
 
 
             filters = list()
+
+            if company:
+                companies = {'name': 'Şirket', 'slug': 'company', 'type': 'check', 'value': [], 'items': []}
+                for b in company:
+                    companies['items'].append({
+                        'slug': b['brand__company__slug'],
+                        'name': b['brand__company__name'],
+                        'count': b['count']
+                    })
+                filters.append(companies)
 
             if brand:
                 brands = {'name': 'Marka', 'slug': 'brand', 'type': 'check', 'value': [], 'items': []}
@@ -162,7 +182,7 @@ class FoodViewSet(FlexFieldsModelViewSet):
                 filters.append(packages)
 
             if len(health) > 0:
-                healths = {'name': 'Sağlık', 'slug': 'health', 'type': 'check', 'value': [], 'items': []}
+                healths = {'name': 'Etiketler', 'slug': 'health', 'type': 'check', 'value': [], 'items': []}
                 for h in health:
                     if h['count']:
                         healths['items'].append({
@@ -172,6 +192,7 @@ class FoodViewSet(FlexFieldsModelViewSet):
                         })
                 filters.append(healths)
 
+            '''
             if len(size) > 0:
                 sizes = {'name': 'Boyut', 'slug': 'size', 'type': 'check', 'value': [], 'items': []}
                 for s in size:
@@ -182,7 +203,7 @@ class FoodViewSet(FlexFieldsModelViewSet):
                             'count': s['count']
                         })
                 filters.append(sizes)
-
+            '''
             page = self.paginate_queryset(queryset)
             if page is not None:
 

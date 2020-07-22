@@ -11,11 +11,12 @@ class IngredientSerializer(FlexFieldsModelSerializer):
 
     class Meta:
         model = Ingredient
+        lookup_field = 'slug'
         fields = (
             'id',
             'name',
             'slug',
-            'slug',
+            'content',
             'active',
             'stats'
         )
@@ -29,10 +30,18 @@ class IngredientSerializer(FlexFieldsModelSerializer):
             'type': 'food.IngredientTypeSerializer',
             'quality': 'food.IngredientQualitySerializer',
             'parent': 'food.IngredientParentSerializer',
+            'image': ('document.ImageSerializer', {'many': True}),
         }
 
     def get_stats(self, obj):
 
-        data = FoodIngredient.objects.filter(food_id=self.context['food_id'], ingredient_id=obj.id).first()
-        serializer = FoodIngredientSerializer(data)
-        return serializer.data
+        food_id = self.context.get('food_id', None)
+
+        if food_id:
+            data = FoodIngredient.objects.filter(food_id=self.context['food_id'], ingredient_id=obj.id).first()
+            serializer = FoodIngredientSerializer(data)
+
+            return serializer.data
+
+        return []
+

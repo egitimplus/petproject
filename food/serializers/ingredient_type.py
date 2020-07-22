@@ -9,7 +9,7 @@ class IngredientTypeSerializer(FlexFieldsModelSerializer):
         fields = (
             'id',
             'name',
-            'slug'
+            'slug',
             'active'
         )
 

@@ -1,6 +1,5 @@
 from rest_flex_fields import FlexFieldsModelSerializer
 from food.models import Food
-from food.serializers import FoodIngredientSerializer
 
 
 class FoodSerializer(FlexFieldsModelSerializer):

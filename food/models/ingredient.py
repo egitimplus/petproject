@@ -15,6 +15,7 @@ class Ingredient(models.Model):
     parent = models.ForeignKey('food.IngredientParent', on_delete=models.CASCADE)
     quality = models.ForeignKey('food.IngredientQuality', on_delete=models.CASCADE)
     content = models.TextField()
+    image = models.ManyToManyField('document.Image', related_name='ingredients')
 
     class Meta:
         ordering = ['name']
