@@ -93,8 +93,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'petproject',
-        'USER': 'sammy',
-        'PASSWORD': '!!eE654987',
+        'USER': 'root',
+        'PASSWORD': '62629617',
         'HOST': 'localhost',
         'PORT': '3306',
     }
