@@ -11,6 +11,13 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
+import environ
+
+
+env = environ.Env(
+    # set casting, default value
+    DEBUG=(bool, False)
+)
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -20,12 +27,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '_sutvr=uub5%xe(phyyq6dur)6v1&)zol)fb^tt#7e@u4i6a=2'
+SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env.bool('DEBUG', False)
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS')
 
 
 # Application definition
@@ -90,14 +97,7 @@ WSGI_APPLICATION = 'petproject.wsgi.application'
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'petproject',
-        'USER': 'sammy',
-        'PASSWORD': '!!eE654987',
-        'HOST': 'localhost',
-        'PORT': '3306',
-    }
+    'default': env.db()
 }
 
 
@@ -143,17 +143,10 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-INTERNAL_IPS = ['185.244.144.204']
+INTERNAL_IPS = env.list('INTERNAL_IPS')
 
-CSRF_TRUSTED_ORIGINS = (
-    'localhost:3000',
-    '127.0.0.1:3000'
-)
-
-CORS_ORIGIN_WHITELIST = (
-    'http://localhost:3000',
-    'http://127.0.0.1:3000'
-)
+CSRF_TRUSTED_ORIGINS = env.tuple('CSRF_TRUSTED_ORIGINS')
+CORS_ORIGIN_WHITELIST = env.tuple('CORS_ORIGIN_WHITELIST')
 
 CORS_ALLOW_METHODS = (
     'DELETE',
