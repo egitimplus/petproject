@@ -50,6 +50,7 @@ class FoodTypeAdmin(admin.ModelAdmin):
 
     food_count.admin_order_field = 'food_count'
 
+
 @admin.register(Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
     readonly_fields = ["slug"]
