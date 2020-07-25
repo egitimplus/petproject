@@ -143,7 +143,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-INTERNAL_IPS = ['127.0.0.1']
+INTERNAL_IPS = ['185.244.144.204']
 
 CSRF_TRUSTED_ORIGINS = (
     'localhost:3000',
