@@ -94,7 +94,6 @@ class FoodViewSet(FlexFieldsMixin, ReadOnlyModelViewSet):
 
         for expand in expands.split(","):
             parts = expand.split(".")
-            #count = len(parts)
 
             if parts[0] == 'ingredients':
                 if parts[-1] == 'quality':
