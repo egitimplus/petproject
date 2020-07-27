@@ -1,12 +1,13 @@
 from food.serializers import FoodSerializer
 from food.models import Food, FoodSize
-from rest_flex_fields import FlexFieldsModelViewSet
+from rest_flex_fields.views import FlexFieldsMixin
 from library.pagination import CustomPagination
 from rest_framework.response import Response
 from django.db.models import Count, Q, Max, Min
+from rest_framework.viewsets import ReadOnlyModelViewSet
 
 
-class FoodViewSet(FlexFieldsModelViewSet):
+class FoodViewSet(FlexFieldsMixin, ReadOnlyModelViewSet):
     permit_list_expands = ['image','brand']
     serializer_class = FoodSerializer
     pagination_class = CustomPagination
@@ -14,6 +15,11 @@ class FoodViewSet(FlexFieldsModelViewSet):
 
     def get_queryset(self):
         queryset = Food.objects.filter(active=1).all()
+
+        keyword = self.request.query_params.get("keyword", None)
+        if keyword is not None:
+            query = Q(name__icontains=keyword)
+            queryset = queryset.filter(query)
 
         brands = self.request.query_params.get("brand", None)
         if brands is not None:
