@@ -16,6 +16,7 @@ class FoodViewSet(FlexFieldsMixin, ReadOnlyModelViewSet):
     def get_queryset(self):
         queryset = Food.objects.filter(active=1).all()
 
+
         keyword = self.request.query_params.get("keyword", None)
         if keyword is not None:
             query = Q(name__icontains=keyword)
