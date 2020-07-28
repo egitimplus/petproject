@@ -10,4 +10,7 @@ from .food_size import FoodSize
 from .food_package import FoodPackage
 from .food import Food
 from .food_ingredient import FoodIngredient
+from .calorie import Calorie
+from .avarage import Avarage
+from .dry import Dry
 from .guaranteed import Guaranteed

@@ -225,3 +225,11 @@ class FoodViewSet(FlexFieldsMixin, ReadOnlyModelViewSet):
 
         return Response(serializer.data)
 
+    def create_average_percentages(self):
+        pass
+
+    def create_ingidient_score(self):
+        pass
+
+    def create_nutrition_score(self):
+        pass
