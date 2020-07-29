@@ -10,7 +10,7 @@ def truncate(num):
 class Command(BaseCommand):
 
     def _data_crate(self):
-        foods = Food.objects.filter(type=2).all()
+        foods = Food.objects.all()
 
         for food in foods:
             point = 0
@@ -23,7 +23,8 @@ class Command(BaseCommand):
                 'other': {'wet': 0, 'dry': 0},
                 'no-content': 0,
                 'animal': {'wet': 0, 'dry': 0},
-                'proteins': []
+                'proteins': [],
+                'broth': 0
             }
 
             for ingredient in food.food.all():
@@ -44,7 +45,7 @@ class Command(BaseCommand):
                     qualities['meal']['wet'] += (ingredient.ingredient_percent - ingredient.dehydrated_percent)
                     qualities['meal']['dry'] += ingredient.dehydrated_percent
 
-                if ingredient.ingredient.quality.slug != 'protein' and ingredient.ingredient.quality.slug != 'meat' and ingredient.ingredient.quality.slug != 'meal' and ingredient.ingredient.quality.slug != 'giblets' and ingredient.ingredient.quality.slug != 'by-product':
+                if ingredient.ingredient.quality.slug != 'broth' and ingredient.ingredient.quality.slug != 'protein' and ingredient.ingredient.quality.slug != 'meat' and ingredient.ingredient.quality.slug != 'meal' and ingredient.ingredient.quality.slug != 'giblets' and ingredient.ingredient.quality.slug != 'by-product':
                     qualities['other']['wet'] += (ingredient.ingredient_percent - ingredient.dehydrated_percent)
                     qualities['other']['dry'] += ingredient.dehydrated_percent
 
@@ -55,76 +56,102 @@ class Command(BaseCommand):
                     qualities['animal']['wet'] += (ingredient.ingredient_percent - ingredient.dehydrated_percent)
                     qualities['animal']['dry'] += ingredient.dehydrated_percent
 
-            qualities['no-content'] = 100 - (qualities['meat']['wet'] + qualities['by-product']['wet'] + qualities['meal']['wet'] + qualities['other']['wet'] + qualities['meat']['dry'] + qualities['by-product']['dry'] + qualities['meal']['dry'] + qualities['other']['dry'])
+                if ingredient.ingredient.quality.slug == 'broth':
+                    qualities['broth'] += ingredient.ingredient_percent
 
-            meat = truncate(((qualities['meat']['wet'] * 0.35) + qualities['meat']['dry']))
+            qualities['no-content'] = 100 - (qualities['broth'] + qualities['meat']['wet'] + qualities['by-product']['wet'] + qualities['meal']['wet'] + qualities['other']['wet'] + qualities['meat']['dry'] + qualities['by-product']['dry'] + qualities['meal']['dry'] + qualities['other']['dry'])
+
+            meat = truncate(((qualities['meat']['wet'] * 0.30) + qualities['meat']['dry']))
             meal = truncate((qualities['meal']['wet'] + qualities['meat']['dry']))
             by = truncate((qualities['by-product']['wet'] + qualities['by-product']['dry']))
             protein = truncate((qualities['protein']['wet'] + qualities['protein']['dry']))
+            broth = truncate(qualities['broth'])
 
             # MEAT POINT
             meat_point = 0
             total_meat_protein = meat + meal + by + protein
             meat_percent = truncate((meat / total_meat_protein))
             meal_percent = truncate((meal / total_meat_protein))
-            other_meat_percent = 100 - (meat_percent + meal_percent)
+            other_meat_percent = truncate((1 - (meat_percent + meal_percent)))
 
-            meat_point += (meal_percent * 1 + meal_percent * 0.5 + other_meat_percent * 0.3)
+            meat_point += (meat_percent * 1 + meal_percent * 0.5 + other_meat_percent * 0.3)
 
-            if other_meat_percent >50:
+            if other_meat_percent > 0.5:
                 meat_point += 0
-            elif other_meat_percent>25:
+            elif other_meat_percent > 0.25:
                 meat_point += 0.5
-            elif other_meat_percent>5:
+            elif other_meat_percent > 0.05:
                 meat_point += 0.75
             else:
                 meat_point += 1
 
-            multiplier = total_meat_protein / 70;
+            food_percent = 70
+            if food.type.slug == 'wet':
+                food_percent = 30
+
+            multiplier = total_meat_protein / food_percent
 
             if multiplier > 1:
                 multiplier = 1
 
-            point += (meat_point * multiplier)
+            meat_point = meat_point * multiplier
+            point += meat_point
 
             # OTHER POINT
-            other = truncate(qualities['no-content'])
-            point += truncate(((100 - other)/100)*0.5)
 
-            if other < 5:
-                point += 0.5
-            elif other < 10:
-                point += 0.35
-            elif other < 25:
-                point += 0.2
+            if food.type.slug == 'dry':
+                other = truncate(qualities['no-content'])
+
+                other_percent = 100
+                diff_other = other_percent - other
+
+                other_point = truncate((diff_other/100)*0.5)
+
+                if other < 5:
+                    other_point += 0.5
+                elif other < 10:
+                    other_point += 0.35
+                elif other < 25:
+                    other_point += 0.2
+
+                point += other_point
 
             # TYPE POINT
+            type_point = 0
             proteins = len(qualities['proteins'])
             if proteins > 3:
-                point += 1
+                type_point += 0.5
             elif proteins > 2:
-                point += 0.75
+                type_point += 0.4
             elif proteins > 1:
-                point += 0.5
+                type_point += 0.3
             elif proteins == 1:
-                point += 0.25
+                type_point += 0.2
+
+            point += type_point
 
             # ANIMAl POINT
             animal = truncate((qualities['animal']['wet'] + qualities['animal']['dry']))
+            animal_point = 0
 
             if animal > 75:
-                point += 1
+                animal_point += 0.5
             elif animal > 60:
-                point += 0.75
+                animal_point += 0.4
             elif animal > 50:
-                point += 0.5
+                animal_point += 0.3
             elif animal > 40:
-                point += 0.25
+                animal_point += 0.2
 
-            # hayvansal içerik puanı
-            # diğer içerik puanı
-            # protein çeşitlilik puanı
-            # protein kaynağı puanı yüzde ve içerik
+            point += animal_point
+
+            if food.type.slug == 'wet':
+                point = point * 5 / 3
+
+            if food.type.slug == 'dry':
+                point = point * 5 / 4
+
+            Food.objects.filter(id=food.id).update(nutrition_score=round(point))
 
     def handle(self, *args, **options):
         self._data_crate()
