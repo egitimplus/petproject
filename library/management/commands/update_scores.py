@@ -1,82 +1,130 @@
 from django.core.management.base import BaseCommand
-from company.models import Brand
-from food.models import Food, FoodType, Ingredient, IngredientType, FoodFor, IngredientParent, FoodIngredient, Guaranteed, FoodStage
-import json
-from datetime import datetime
-from django.db.models import Avg, Count
+from food.models import Food
+import re
 
 
-def change_date(date):
-    d = datetime.strptime(date, "%B %d, %Y")
-    return d.strftime('%Y/%m/%d')
-
-
-def join_ingredients(ingredients):
-    separator = ', '
-    return separator.join(ingredients)
+def truncate(num):
+    return float(re.sub(r'^(\d+\.\d{,2})\d*$',r'\1', str(num)))
 
 
 class Command(BaseCommand):
 
     def _data_crate(self):
+        foods = Food.objects.filter(type=2).all()
 
-        recommended = {
-            'protein': 30,
-            'fat': 9,
-            'ash': 1,
-            'taurine': 0.1,
-            'calcium': 1,
-            'phosphorus':0.8,
-            'magnesium':0.08,
-            'epa-dha': 0.012,
-            'fibre': 0,
-        }
+        for food in foods:
+            point = 0
 
+            qualities = {
+                'meat': {'wet': 0, 'dry': 0},
+                'meal': {'wet': 0, 'dry': 0},
+                'by-product': {'wet': 0, 'dry': 0},
+                'protein': {'wet': 0, 'dry': 0},
+                'other': {'wet': 0, 'dry': 0},
+                'no-content': 0,
+                'animal': {'wet': 0, 'dry': 0},
+                'proteins': []
+            }
 
-        nutrition_points = {
-            'protein': 0,
-            'fat': 0,
-            'ash': 0,
-            'taurine': 0,
-            'calcium': 0,
-            'phosphorus': 0,
-            'magnesium': 0,
-            'epa-dha': 0,
-            'fibre':0
-        }
+            for ingredient in food.food.all():
 
-        averages = Guaranteed.objects.aggregate(
-            protein=Avg('protein'),
-            fat=Avg('fat'),
-            ash=Avg('ash'),
-            fibre=Avg('fibre'),
-            moisture=Avg('moisture')
-        )
+                if ingredient.ingredient.quality.slug == 'meat' or ingredient.ingredient.quality.slug == 'giblets':
+                    qualities['meat']['wet'] += ingredient.ingredient_percent - ingredient.dehydrated_percent
+                    qualities['meat']['dry'] += ingredient.dehydrated_percent
 
-        guaranteed_query = Guaranteed.objects.values()
+                if ingredient.ingredient.quality.slug == 'by-product':
+                    qualities['by-product']['wet'] += (ingredient.ingredient_percent - ingredient.dehydrated_percent)
+                    qualities['by-product']['dry'] += ingredient.dehydrated_percent
 
-        for guaranteed in guaranteed_query:
-            edha = 0
-            for k in guaranteed:
-                if k != 'food_id' and k != 'epa' and k != 'dha' and k != 'moisture':
-                    val = ((guaranteed[k] / (100-guaranteed['moisture']))*100)
+                if ingredient.ingredient.quality.slug == 'protein':
+                    qualities['protein']['wet'] += (ingredient.ingredient_percent - ingredient.dehydrated_percent)
+                    qualities['protein']['dry'] += ingredient.dehydrated_percent
 
-                    if val > recommended[k]:
-                        nutrition_points[k] += 0.5
+                if ingredient.ingredient.quality.slug == 'meal':
+                    qualities['meal']['wet'] += (ingredient.ingredient_percent - ingredient.dehydrated_percent)
+                    qualities['meal']['dry'] += ingredient.dehydrated_percent
 
-                    if val > averages[k]:
-                        nutrition_points[k] += 0.5
+                if ingredient.ingredient.quality.slug != 'protein' and ingredient.ingredient.quality.slug != 'meat' and ingredient.ingredient.quality.slug != 'meal' and ingredient.ingredient.quality.slug != 'giblets' and ingredient.ingredient.quality.slug != 'by-product':
+                    qualities['other']['wet'] += (ingredient.ingredient_percent - ingredient.dehydrated_percent)
+                    qualities['other']['dry'] += ingredient.dehydrated_percent
 
-                if k == 'epa' or k == 'dha':
-                    edha += ((guaranteed[k] / (100-guaranteed['moisture']))*100)
+                if ingredient.ingredient.parent.regnum.slug == 'animals':
+                    if ingredient.ingredient.parent.slug not in qualities['proteins'] and ingredient.ingredient.parent.slug != 'egg':
+                        qualities['proteins'].append(ingredient.ingredient.parent.slug)
 
-            if edha > recommended['epa-dha']:
-                print(k)
+                    qualities['animal']['wet'] += (ingredient.ingredient_percent - ingredient.dehydrated_percent)
+                    qualities['animal']['dry'] += ingredient.dehydrated_percent
 
-                nutrition_points['epa-dha'] += 0.5
+            qualities['no-content'] = 100 - (qualities['meat']['wet'] + qualities['by-product']['wet'] + qualities['meal']['wet'] + qualities['other']['wet'] + qualities['meat']['dry'] + qualities['by-product']['dry'] + qualities['meal']['dry'] + qualities['other']['dry'])
 
-            if edha > averages['epa'] + averages['dha']:
-                nutrition_points['epa-dha'] += 0.5
+            meat = truncate(((qualities['meat']['wet'] * 0.35) + qualities['meat']['dry']))
+            meal = truncate((qualities['meal']['wet'] + qualities['meat']['dry']))
+            by = truncate((qualities['by-product']['wet'] + qualities['by-product']['dry']))
+            protein = truncate((qualities['protein']['wet'] + qualities['protein']['dry']))
+
+            # MEAT POINT
+            meat_point = 0
+            total_meat_protein = meat + meal + by + protein
+            meat_percent = truncate((meat / total_meat_protein))
+            meal_percent = truncate((meal / total_meat_protein))
+            other_meat_percent = 100 - (meat_percent + meal_percent)
+
+            meat_point += (meal_percent * 1 + meal_percent * 0.5 + other_meat_percent * 0.3)
+
+            if other_meat_percent >50:
+                meat_point += 0
+            elif other_meat_percent>25:
+                meat_point += 0.5
+            elif other_meat_percent>5:
+                meat_point += 0.75
+            else:
+                meat_point += 1
+
+            multiplier = total_meat_protein / 70;
+
+            if multiplier > 1:
+                multiplier = 1
+
+            point += (meat_point * multiplier)
+
+            # OTHER POINT
+            other = truncate(qualities['no-content'])
+            point += truncate(((100 - other)/100)*0.5)
+
+            if other < 5:
+                point += 0.5
+            elif other < 10:
+                point += 0.35
+            elif other < 25:
+                point += 0.2
+
+            # TYPE POINT
+            proteins = len(qualities['proteins'])
+            if proteins > 3:
+                point += 1
+            elif proteins > 2:
+                point += 0.75
+            elif proteins > 1:
+                point += 0.5
+            elif proteins == 1:
+                point += 0.25
+
+            # ANIMAl POINT
+            animal = truncate((qualities['animal']['wet'] + qualities['animal']['dry']))
+
+            if animal > 75:
+                point += 1
+            elif animal > 60:
+                point += 0.75
+            elif animal > 50:
+                point += 0.5
+            elif animal > 40:
+                point += 0.25
+
+            # hayvansal içerik puanı
+            # diğer içerik puanı
+            # protein çeşitlilik puanı
+            # protein kaynağı puanı yüzde ve içerik
 
     def handle(self, *args, **options):
         self._data_crate()
