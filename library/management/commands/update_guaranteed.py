@@ -14,8 +14,14 @@ class Command(BaseCommand):
         guaranteed_query = Guaranteed.objects.all()
 
         for guaranteed in guaranteed_query:
+            total = guaranteed.protein + guaranteed.fat + guaranteed.ash + guaranteed.fibre + guaranteed.moisture
 
-            guaranteed.carbs = 100 - (guaranteed.protein + guaranteed.fat + guaranteed.ash + guaranteed.fibre + guaranteed.moisture)
+            if total > 100:
+                guaranteed.moisture = 100 - guaranteed.protein + guaranteed.fat + guaranteed.ash + guaranteed.fibre
+                guaranteed.carbs = 0
+            else:
+                guaranteed.carbs = 100 - total
+
             guaranteed.save()
 
     def handle(self, *args, **options):
