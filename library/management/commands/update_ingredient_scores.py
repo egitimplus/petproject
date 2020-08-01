@@ -151,7 +151,7 @@ class Command(BaseCommand):
             if food.type.slug == 'dry':
                 point = point * 5 / 4
 
-            Food.objects.filter(id=food.id).update(nutrition_score=round(point))
+            Food.objects.filter(id=food.id).update(ingredient_score=round(point))
 
     def handle(self, *args, **options):
         self._data_crate()
