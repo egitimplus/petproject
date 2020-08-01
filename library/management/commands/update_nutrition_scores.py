@@ -20,19 +20,19 @@ class Command(BaseCommand):
             point = 0
 
             if ingredient >= data.recommend:
-                if ingredient < data.average:
+                if ingredient < data.avarage:
 
-                    average_diff = data.average - data.recommend
+                    avarage_diff = data.avarage - data.recommend
 
-                    if average_diff < 1:
-                        average_diff = 1
+                    if avarage_diff < 1:
+                        avarage_diff = 1
 
                     recommend_diff = ingredient - data.recommend
 
                     if recommend_diff < 1:
                         recommend_diff = 1
 
-                    diff = round(recommend_diff / (average_diff / 5))
+                    diff = round(recommend_diff / (avarage_diff / 5))
 
                     if diff < 1:
                         diff = 1
@@ -44,17 +44,17 @@ class Command(BaseCommand):
 
                 else:
 
-                    max_diff = data.max_value - data.average
+                    max_diff = data.max_value - data.avarage
 
                     if max_diff < 1:
                         max_diff = 1
 
-                    average_diff = ingredient - data.average
+                    avarage_diff = ingredient - data.avarage
 
-                    if average_diff < 1:
-                        average_diff = 1
+                    if avarage_diff < 1:
+                        avarage_diff = 1
 
-                    diff = round(average_diff / (max_diff / 5))
+                    diff = round(avarage_diff / (max_diff / 5))
 
                     if diff < 1:
                         diff = 1
