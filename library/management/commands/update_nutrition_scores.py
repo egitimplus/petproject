@@ -19,15 +19,15 @@ class Command(BaseCommand):
             ingredient = food.dry.protein
             point = 0
 
-            if ingredient >= data['recommend']:
-                if ingredient < data['average']:
+            if ingredient >= data.recommend:
+                if ingredient < data.average:
 
-                    average_diff = data['average'] - data['recommend']
+                    average_diff = data.average - data.recommend
 
                     if average_diff < 1:
                         average_diff = 1
 
-                    recommend_diff = ingredient - data['recommend']
+                    recommend_diff = ingredient - data.recommend
 
                     if recommend_diff < 1:
                         recommend_diff = 1
@@ -44,12 +44,12 @@ class Command(BaseCommand):
 
                 else:
 
-                    max_diff = data['max_value'] - data['average']
+                    max_diff = data.max_value - data.average
 
                     if max_diff < 1:
                         max_diff = 1
 
-                    average_diff = ingredient - data['average']
+                    average_diff = ingredient - data.average
 
                     if average_diff < 1:
                         average_diff = 1
