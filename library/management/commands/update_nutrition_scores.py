@@ -64,9 +64,7 @@ class Command(BaseCommand):
                     point = 0.5 + add_plus
 
             nutrition_point += point
-
-
-            #Food.objects.filter(id=food.id).update(nutrition_score=round(point))
+            Food.objects.filter(id=food.id).update(nutrition_score=round(point))
 
     def handle(self, *args, **options):
         self._data_crate()
