@@ -16,56 +16,123 @@ class Command(BaseCommand):
             nutrition_point = 0
 
             data = Avarage.objects.filter(name='protein').first()
-            ingredient = food.dry.protein
+            protein_ingredient = food.dry.protein
             point = 0
 
-            if ingredient >= data.recommend:
-                if ingredient < data.avarage:
+            if protein_ingredient >= data.recommend:
 
-                    avarage_diff = data.avarage - data.recommend
-
-                    if avarage_diff < 1:
-                        avarage_diff = 1
-
-                    recommend_diff = ingredient - data.recommend
-
-                    if recommend_diff < 1:
-                        recommend_diff = 1
-
-                    diff = round(recommend_diff / (avarage_diff / 5))
-
-                    if diff < 1:
-                        diff = 1
-
-                    point = diff * 0.1
-
-                    if point > 0.5:
-                        point = 0.5
+                if protein_ingredient > 52:
+                    point = 1
 
                 else:
+                    point = round(protein_ingredient / 52, 1)
 
-                    max_diff = data.max_value - data.avarage
-
-                    if max_diff < 1:
-                        max_diff = 1
-
-                    avarage_diff = ingredient - data.avarage
-
-                    if avarage_diff < 1:
-                        avarage_diff = 1
-
-                    diff = round(avarage_diff / (max_diff / 5))
-
-                    if diff < 1:
-                        diff = 1
-
-                    add_plus = diff * 0.1
-
-                    point = 0.5 + add_plus
+                    if point > 1:
+                        point = 1
 
             nutrition_point += point
 
-            Food.objects.filter(id=food.id).update(nutrition_score=round(point))
+            fat_ingredient = food.dry.fat
+            if fat_ingredient >= data.recommend:
+
+                if fat_ingredient < 22:
+
+                    point = round(fat_ingredient/22, 1)
+
+                    if point > 1:
+                        point = 1
+
+                elif fat_ingredient > 36:
+                    point = round(36/fat_ingredient, 1)
+
+                    if point > 1:
+                        point = 1
+
+                else:
+                    point = 1
+
+            nutrition_point += point
+
+            carbs_ingredient = food.dry.carbs
+
+            if carbs_ingredient < 12:
+                point = 1
+
+            else:
+                point = round(12 / carbs_ingredient, 1)
+
+                if point > 1:
+                    point = 1
+
+            nutrition_point += point
+
+            additives_point = 0
+
+            if food.dry.calcium >= 1:
+                additives_point += 0.15
+
+            if food.dry.taurine >= 0.1:
+                additives_point += 0.25
+
+            if food.dry.phosphorus >= 0.8:
+                additives_point += 0.15
+
+            if food.dry.magnesium >= 0.08:
+                additives_point += 0.15
+
+            if food.dry.epa + food.dry.dha >= 0.12:
+                additives_point += 0.15
+
+            if food.dry.omega3 >= 0:
+                additives_point += 0.25
+
+            if food.dry.omega6 >= 0:
+                additives_point += 0.25
+
+            if additives_point > 1:
+                additives_point = 1
+
+            nutrition_point += additives_point
+
+            fibre_ingredient = food.dry.fibre
+
+            if fibre_ingredient < 1.4:
+                point = round((fibre_ingredient/1.4)/2, 1)
+
+                if point > 0.5:
+                    point = 0.5
+
+            elif fibre_ingredient > 3.5:
+                point = round((3.5/fibre_ingredient)/2, 1)
+
+                if point > 0.5:
+                   point = 0.5
+
+            else:
+                point = 0.5
+
+            nutrition_point += point
+
+            ash_ingredient = food.dry.ash
+
+            if ash_ingredient > 2 and ash_ingredient < 8:
+                    point = 0.5
+            elif ash_ingredient <= 2:
+                point = round((ash_ingredient/2)/2, 1)
+
+                if point > 0.5:
+                   point = 0.5
+
+            else:
+                point = 0.5
+                point = round((8/ash_ingredient)/2, 1)
+
+                if point > 0.5:
+                   point = 0.5
+
+            nutrition_point += point
+
+            Food.objects.filter(id=food.id).update(nutrition_score=round(nutrition_point))
 
     def handle(self, *args, **options):
         self._data_crate()
