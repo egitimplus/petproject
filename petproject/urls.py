@@ -16,7 +16,8 @@ router.register(r'categories', TypeViewSet, basename='FoodType')
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^', include(router.urls))
+    url(r'^summernote/', include('django_summernote.urls')),
+    url(r'^', include(router.urls)),
 ]
 
 

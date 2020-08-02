@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'debug_toolbar',
     'corsheaders',
     'generic_relations',
+    'django_summernote',
     'company',
     'food',
     'library',
@@ -163,3 +164,5 @@ CORS_ALLOW_HEADERS = (
     'x-csrftoken',
     'x-requested-with',
 )
+
+X_FRAME_OPTIONS = 'SAMEORIGIN'

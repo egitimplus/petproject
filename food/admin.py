@@ -2,6 +2,7 @@ from django.contrib import admin
 from food.models import Regnum, Food, Guaranteed, FoodFor, FoodStage, FoodType, Ingredient, IngredientType, IngredientQuality, IngredientParent, FoodSize, FoodPackage
 from django.db.models import Count
 # Register your models here.
+from django_summernote.admin import SummernoteModelAdmin
 
 
 class GuaranteedInline(admin.StackedInline):
@@ -13,12 +14,13 @@ class IngredientInline(admin.TabularInline):
 
 
 @admin.register(Food)
-class FoodAdmin(admin.ModelAdmin):
+class FoodAdmin(SummernoteModelAdmin):
     inlines = [GuaranteedInline, IngredientInline]
     list_display = ('name', 'brand', 'type', 'updated', 'active', 'user')
     list_filter = ['brand', 'type', 'package', 'size', 'health', 'stage', 'active', 'user']
     readonly_fields = ["slug", "ingredient_score", "nutrition_score", "total_score"]
     ordering = ['-id']
+    summernote_fields = '__all__'
 
 
 @admin.register(FoodFor)
