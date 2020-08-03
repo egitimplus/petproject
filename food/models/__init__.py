@@ -6,6 +6,7 @@ from .food_type import FoodType
 from .ingredient_quality import IngredientQuality
 from .food_for import FoodFor
 from .food_stage import FoodStage
+from .food_site import FoodSite
 from .food_size import FoodSize
 from .food_package import FoodPackage
 from .food import Food
