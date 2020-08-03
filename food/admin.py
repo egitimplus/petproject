@@ -29,7 +29,7 @@ class FoodAdmin(SummernoteModelAdmin):
 
 @admin.register(FoodSite)
 class FoodSiteAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('name', 'company', 'size', 'updated')
 
 
 @admin.register(FoodFor)
