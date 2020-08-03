@@ -1,5 +1,5 @@
 from django.contrib import admin
-from company.models import Company, Brand, PetShop
+from company.models import Company, Brand, PetShop, Site
 
 
 @admin.register(Company)
@@ -15,3 +15,9 @@ class BrandAdmin(admin.ModelAdmin):
 @admin.register(PetShop)
 class PetShopAdmin(admin.ModelAdmin):
     readonly_fields = ["slug"]
+
+
+@admin.register(Site)
+class SiteAdmin(admin.ModelAdmin):
+    list_display = ('company', 'brand', 'size', 'updated')
+    list_filter = ('company', 'size', 'brand')

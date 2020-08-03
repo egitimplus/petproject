@@ -29,8 +29,8 @@ class FoodAdmin(SummernoteModelAdmin):
 
 @admin.register(FoodSite)
 class FoodSiteAdmin(admin.ModelAdmin):
-    list_display = ('food', 'company', 'size', 'updated')
-    list_filter = ('company', 'size')
+    list_display = ('food', 'company', 'brand', 'size', 'updated')
+    list_filter = ('company', 'size', 'brand')
 
 
 @admin.register(FoodFor)
