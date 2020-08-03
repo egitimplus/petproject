@@ -13,3 +13,6 @@ class FoodSite(models.Model):
     top_site = models.PositiveSmallIntegerField(default=0)
     created = models.DateField(auto_now_add=True)
     updated = models.DateField(auto_now=True)
+
+    def __str__(self):
+        return '%s - %s'. % (self.company.name, self.food.name)
