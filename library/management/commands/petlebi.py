@@ -3,82 +3,16 @@ from bs4 import BeautifulSoup
 import requests
 from library.models import ProductLinks
 
-brands = [
-    'acana',
-    'advance',
-    'amity',
-    'appettite',
-    'benefit',
-    'best-pet',
-    'bravery',
-    'brekkies',
-    'brit-care',
-    'croque',
-    'dr-sacchi',
-    'felicia',
-    'happy-cat',
-    'hills',
-    'instinct',
-    'jungle',
-    'la-cat',
-    'matisse',
-    'mystic',
-    'nd',
-    'orijen',
-    'paw-paw',
-    'petlebi',
-    'pro-choice',
-    'pro-performance',
-    'pro-plan',
-    'profine',
-    'purina-one',
-    'reflex',
-    'royal-canin',
-    'trendline',
-    'van-cat',
-    'whiskas'
-    ]
-
-wet_brands = [
-    'animonda',
-    'best-pet',
-    'bonnie',
-    'brit-care',
-    'chefs-choice',
-    'club4paws',
-    'dr-sacchi',
-    'eurocat',
-    'felicia',
-    'felix',
-    'gimpet',
-    'gourmet',
-    'hills',
-    'jungle',
-    'master',
-    'me-o',
-    'miglior-gatto',
-    'nd',
-    'naturon',
-    'nutri',
-    'plaisir',
-    'pro-line',
-    'pro-plan',
-    'quik',
-    'reflex',
-    'rokus',
-    'royal-canin',
-    'schesir',
-    'sheba',
-    'simba',
-    'stuzzy',
-    'vitakraft',
-    'whiskas'
-    ]
-
 
 class Command(BaseCommand):
 
-    def get_content(self, url):
+    def get_content(self, brand, food_type, page=None):
+
+        url = 'https://www.petlebi.com/' + brand + '/' + food_type
+
+        if page is not None:
+            url = url + '?page=' + page
+
         r = requests.get(url)
         return BeautifulSoup(r.content, "lxml")
 
@@ -106,24 +40,96 @@ class Command(BaseCommand):
 
                 for i in range(1, total - 1):
                     split = links[i].a.get('href').split('?page=')
-                    source = self.get_content('https://www.petlebi.com/' + brand + '/' + food_type + '?page=' + split[1])
+                    source = self.get_content(brand, food_type, split[1])
                     self.add_products(source, brand, food_type)
 
     def _data_crate(self):
 
-        food_type = 'kedi-mamasi'
+        brands = [
+            'acana',
+            'advance',
+            'amity',
+            'appettite',
+            'benefit',
+            'best-pet',
+            'bravery',
+            'brekkies',
+            'brit-care',
+            'croque',
+            'dr-sacchi',
+            'felicia',
+            'happy-cat',
+            'hills',
+            'instinct',
+            'jungle',
+            'la-cat',
+            'matisse',
+            'mystic',
+            'nd',
+            'orijen',
+            'paw-paw',
+            'petlebi',
+            'pro-choice',
+            'pro-performance',
+            'pro-plan',
+            'profine',
+            'purina-one',
+            'reflex',
+            'royal-canin',
+            'trendline',
+            'van-cat',
+            'whiskas'
+        ]
 
-        for brand in brands:
-            source = self.get_content('https://www.petlebi.com/' + brand + '/kedi-mamasi')
-            self.add_products(source, brand, food_type)
-            self.add_childs(source, brand, food_type)
+        wet_brands = [
+            'animonda',
+            'best-pet',
+            'bonnie',
+            'brit-care',
+            'chefs-choice',
+            'club4paws',
+            'dr-sacchi',
+            'eurocat',
+            'felicia',
+            'felix',
+            'gimpet',
+            'gourmet',
+            'hills',
+            'jungle',
+            'master',
+            'me-o',
+            'miglior-gatto',
+            'nd',
+            'naturon',
+            'nutri',
+            'plaisir',
+            'pro-line',
+            'pro-plan',
+            'quik',
+            'reflex',
+            'rokus',
+            'royal-canin',
+            'schesir',
+            'sheba',
+            'simba',
+            'stuzzy',
+            'vitakraft',
+            'whiskas'
+        ]
 
-        food_type = 'kedi-konserve-mamasi'
+        food_types = [
+            'kedi-mamasi',
+            'kedi-konserve-mamasi'
+        ]
 
-        for brand in wet_brands:
-            source = self.get_content('https://www.petlebi.com/' + brand + '/kedi-konserve-mamasi')
-            self.add_products(source, brand, food_type)
-            self.add_childs(source, brand, food_type)
+        for food_type in food_types:
+            if food_type == 'kedi-konserve-mamasi':
+                brands = wet_brands
+
+            for brand in brands:
+                source = self.get_content(brand, food_type)
+                self.add_products(source, brand, food_type)
+                self.add_childs(source, brand, food_type)
 
     def handle(self, *args, **options):
         self._data_crate()
