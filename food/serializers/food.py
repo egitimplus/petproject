@@ -36,6 +36,8 @@ class FoodSerializer(FlexFieldsModelSerializer):
             'type': 'food.FoodTypeSerializer',
             'image': ('document.ImageSerializer', {'many': True}),
             'guaranteed': 'food.FoodGuaranteedSerializer',
+            'dry': 'food.FoodDrySerializer',
+            'calorie': 'food.FoodCalorieSerializer',
         }
 
     def to_representation(self, instance):

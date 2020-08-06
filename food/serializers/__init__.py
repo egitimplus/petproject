@@ -11,3 +11,5 @@ from .ingredient_quality import IngredientQualitySerializer
 from .regnum import RegnumSerializer
 from .ingredient_parent import IngredientParentSerializer
 from .food_guaranteed import FoodGuaranteedSerializer
+from .food_calorie import FoodCalorieSerializer
+from .food_dry import FoodDrySerializer
