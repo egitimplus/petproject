@@ -1,1 +1,1 @@
-from .product_links import ProductLinks
+from .product import ProductLink, Product, ProductComment, ProductGift

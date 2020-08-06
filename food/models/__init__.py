@@ -2,7 +2,9 @@ from .regnum import Regnum
 from .ingredient_parent import IngredientParent
 from .ingredient_type import IngredientType
 from .ingredient import Ingredient
+from .food_comment import FoodComment
 from .food_type import FoodType
+from .food_promotion import FoodPromotion
 from .ingredient_quality import IngredientQuality
 from .food_for import FoodFor
 from .food_stage import FoodStage
