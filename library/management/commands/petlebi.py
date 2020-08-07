@@ -270,7 +270,7 @@ class Command(BaseCommand):
         if crawl_type is not None:
             if crawl_type == 'product':
                 self._product_crate()
-            else:
+            elif crawl_type == 'page':
                 self._data_crate()
         else:
             print('Seçim yapmadın')
