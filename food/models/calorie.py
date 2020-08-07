@@ -10,4 +10,3 @@ class Calorie(models.Model):
 
     def __str__(self):
         return self.food.name
-
