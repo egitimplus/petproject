@@ -349,6 +349,8 @@ class Command(BaseCommand):
             if total > 100:
                 guaranteed.moisture = 100 - guaranteed.protein + guaranteed.fat + guaranteed.ash + guaranteed.fibre
                 guaranteed.carbs = 0
+
+                print(guaranteed.food.name)
             else:
                 guaranteed.carbs = 100 - total
 
