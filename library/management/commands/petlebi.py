@@ -272,5 +272,7 @@ class Command(BaseCommand):
                 self._product_crate()
             elif crawl_type == 'page':
                 self._data_crate()
+            else:
+                print('Yanlış seçim yaptınız --type')
         else:
             print('Seçim yapmadın')

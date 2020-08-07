@@ -663,3 +663,5 @@ class Command(BaseCommand):
                 print('Ingredient score updated')
                 self._nutrition_score_crate()
                 print('Nutrition score updated')
+            else:
+                print('Yanlış seçim yaptınız --type')
