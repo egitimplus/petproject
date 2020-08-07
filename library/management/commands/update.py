@@ -345,13 +345,10 @@ class Command(BaseCommand):
 
         for guaranteed in guaranteed_query:
             total = guaranteed.protein + guaranteed.fat + guaranteed.ash + guaranteed.fibre + guaranteed.moisture
-            print(guaranteed.food.name)
 
             if total > 100:
                 guaranteed.moisture = 100 - guaranteed.protein + guaranteed.fat + guaranteed.ash + guaranteed.fibre
                 guaranteed.carbs = 0
-
-
             else:
                 guaranteed.carbs = 100 - total
 
@@ -632,14 +629,37 @@ class Command(BaseCommand):
         if update_type is not None:
             if update_type == 'avarage':
                 self._avarage_crate()
+                print('Avarage updated')
             elif update_type == 'calorie':
                 self._calorie_crate()
+                print('Calorie updated')
             elif update_type == 'dry':
                 self._dry_crate()
+                print('Dry updated')
             elif update_type == 'guaranteed':
                 self._guaranteed_crate()
+                print('Guaranteed updated')
             elif update_type == 'ingredient_score':
                 self._ingredient_score_crate()
+                print('Ingredient score updated')
             elif update_type == 'nutrition_score':
                 self._nutrition_score_crate()
-
+                print('Nutrition score updated')
+            elif update_type == 'score':
+                self._ingredient_score_crate()
+                print('Ingredient score updated')
+                self._nutrition_score_crate()
+                print('Nutrition score updated')
+            elif update_type == 'all':
+                self._guaranteed_crate()
+                print('Guaranteed updated')
+                self._dry_crate()
+                print('Dry updated')
+                self._calorie_crate()
+                print('Calorie updated')
+                self._avarage_crate()
+                print('Avarage updated')
+                self._ingredient_score_crate()
+                print('Ingredient score updated')
+                self._nutrition_score_crate()
+                print('Nutrition score updated')
