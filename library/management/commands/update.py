@@ -347,12 +347,12 @@ class Command(BaseCommand):
             total = guaranteed.protein + guaranteed.fat + guaranteed.ash + guaranteed.fibre + guaranteed.moisture
 
             if total > 100:
-                guaranteed.moisture = 100 - guaranteed.protein + guaranteed.fat + guaranteed.ash + guaranteed.fibre
+                guaranteed.moisture = 100 - (guaranteed.protein + guaranteed.fat + guaranteed.ash + guaranteed.fibre)
                 guaranteed.carbs = 0
+
             else:
                 guaranteed.carbs = 100 - total
 
-            print(guaranteed.moisture)
             guaranteed.save()
 
     def _ingredient_score_crate(self):
