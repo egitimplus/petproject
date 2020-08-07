@@ -352,7 +352,7 @@ class Command(BaseCommand):
             else:
                 guaranteed.carbs = 100 - total
 
-            print(guaranteed.carbs)
+            print(guaranteed.moisture)
             guaranteed.save()
 
     def _ingredient_score_crate(self):
