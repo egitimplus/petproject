@@ -5,13 +5,15 @@ from library.models import ProductLink
 from django.utils import timezone
 from datetime import timedelta
 from food.models import FoodSite, FoodComment, FoodPromotion, FoodSize
-from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import Max
+from datetime import datetime
 
 
 class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('-t', '--type', type=str, help='Define a username prefix', )
+        parser.add_argument('-f', '--food', type=str, help='Define a food prefix', )
 
     def get_brand_content(self, brand, food_type, page=None):
 
@@ -30,6 +32,10 @@ class Command(BaseCommand):
     def add_products(self, source, brand, food_type):
         products = source.findAll("div", {"class": "card-body pb-0"})
 
+        ft = 'wet'
+        if food_type == 'kedi-mamasi':
+            ft = 'dry'
+
         if products:
             for product in products:
                 url = product.a.get('href')
@@ -39,11 +45,11 @@ class Command(BaseCommand):
                     brand=brand,
                     url=url,
                     name=name.text,
-                    food_type=food_type,
+                    food_type=ft,
                     petshop_id=1
                 )
         else:
-            ProductLink.objects.filter(brand=brand, food_type=food_type).update(down=1)
+            ProductLink.objects.filter(brand=brand, food_type=ft).update(down=1)
 
     def add_childs(self, source, brand, food_type):
         pagination = source.find(id="pagination_area")
@@ -59,7 +65,7 @@ class Command(BaseCommand):
                     source = self.get_brand_content(brand, food_type, split[1])
                     self.add_products(source, brand, food_type)
 
-    def _data_crate(self):
+    def _data_crate(self, food_type):
 
         brands = [
             'acana',
@@ -133,28 +139,64 @@ class Command(BaseCommand):
             'whiskas'
         ]
 
-        food_types = [
-            'kedi-mamasi',
-            'kedi-konserve-mamasi'
-        ]
+        if food_type == 'kedi-konserve-mamasi':
+            brands = wet_brands
 
-        for food_type in food_types:
-            if food_type == 'kedi-konserve-mamasi':
-                brands = wet_brands
+        for brand in brands:
+            source = self.get_brand_content(brand, food_type)
+            self.add_products(source, brand, food_type)
+            self.add_childs(source, brand, food_type)
 
-            for brand in brands:
-                source = self.get_brand_content(brand, food_type)
-                self.add_products(source, brand, food_type)
-                self.add_childs(source, brand, food_type)
+    def _add_comments(self, source, food):
+        source = source.prettify()
+
+        source = source.split('"review": [')
+        source = source[1].split(']')
+
+        reviews = source[0].split('},              {')
+
+        comment = FoodComment.objects.filter(food_id=food.id, petshop_id=1).aggregate(max_date=Max('created'))
+
+        for review in reviews:
+            author = review.split('"author": "')
+            author = author[1].split('"')
+
+            description = review.split('"description": "')
+            description = description[1].split('"')
+
+            rating = review.split('"ratingValue": "')
+            rating = rating[1].split('"')
+
+            published = review.split('"datePublished": "')
+            published = published[1].split('"')
+            published = datetime.strptime(published[0], '%Y-%m-%d')
+            published = timezone.make_aware(published, timezone.get_current_timezone())
+
+            save = 0
+
+            if comment['max_date'] is None:
+                save = 1
+            elif published > comment['max_date']:
+                save = 1
+
+            if save == 1:
+                fc = FoodComment(
+                    food=food,
+                    name=author[0],
+                    created=published,
+                    content=description[0],
+                    rating=rating[0],
+                    petshop_id=1,
+                )
+                fc.save()
 
     def _product_crate(self):
 
         last_update = timezone.now().date() - timedelta(0)
-        links = ProductLink.objects.filter(updated__lte=last_update).all()
+        links = ProductLink.objects.filter(updated__lte=last_update, petshop_id=2, down=0, active=1, food__isnull=False).all()
 
         for link in links:
             if link.food_id is not None:
-
                 try:
                     source = self.get_food_content(link.url)
 
@@ -193,22 +235,20 @@ class Command(BaseCommand):
                             if isinstance(s, NavigableString):
                                 continue
                             if isinstance(s, Tag):
-                                if title == 'BARKOD':
-                                    barkod = s.text
 
                                 if title == 'AĞIRLIK':
                                     size = s.text.replace(' ', '').replace('gr', 'g').replace(',', '.').strip()
 
                                 title = s.text
 
-                    if size is None:
-                        foodsize = FoodSize.objects.get(id=1)
-                    else:
+                    foodsize = None
+
+                    if size is not None:
                         foodsize = FoodSize.objects.filter(name=size).first()
 
-                    if foodsize is None:
-                        foodsize = FoodSize(name=size)
-                        foodsize.save()
+                        if foodsize is None:
+                            foodsize = FoodSize(name=size)
+                            foodsize.save()
 
                     FoodPromotion.objects.filter(food_id=link.food_id).delete()
                     promotions = source.findAll("div", {"class": "p-1 bd-highlight"})
@@ -227,7 +267,7 @@ class Command(BaseCommand):
                             stock=in_stock,
                             cargo=free_cargo,
                             size=foodsize,
-                            code=barkod
+                            updated=timezone.now(),
                         )
 
                         new_site.save()
@@ -247,7 +287,7 @@ class Command(BaseCommand):
                         foodsite.price = new_price
                         foodsite.stock = in_stock
                         foodsite.cargo = free_cargo
-
+                        foodsite.updated = timezone.now()
                         foodsite.save()
 
                         for promotion in promotions:
@@ -260,19 +300,31 @@ class Command(BaseCommand):
 
                                 gift.save()
 
-                    ProductLink.objects.update(down=0)
-                except ObjectDoesNotExist as e:
-                    ProductLink.objects.update(down=1)
+                    ProductLink.objects.filter(id=link.id).update(down=0, updated=timezone.now())
+                    self._add_comments(source, link.food)
+                except:
+                    ProductLink.objects.filter(id=link.id).update(down=1, updated=timezone.now())
 
     def handle(self, *args, **options):
         crawl_type = options.get('type', None)
+        food_type = options.get('food', None)
 
         if crawl_type is not None:
             if crawl_type == 'product':
                 self._product_crate()
             elif crawl_type == 'page':
-                self._data_crate()
+                self._data_crate(food_type)
             else:
                 print('Yanlış seçim yaptınız --type')
         else:
             print('Seçim yapmadın')
+
+        """
+        --food
+        kedi-mamasi
+        kedi-konserve-mamasi
+    
+        --type
+        product
+        page
+        """
