@@ -13,68 +13,13 @@ class Command(BaseCommand):
         super().__init__(*args, **kwargs)
         self.food_type = None
         self.food = None
-        self.dry_brands = [
-            '12', #acana
-            '115', #advance
-            '223', #amity
-            '224', #bravery
-            '250', #brit-care
-            '70',#cat-chow
-            '95', #dr-sachi
-            '135', #eco-nature
-            '273', #enjoy
-            '406', #felicia
-            '76', #friskies
-            '113', #go-cat
-            '426', #hills
-            '62', #hills
-            '338', #instinct
-            '288', #king
-            '207', #lavital
-            '31', #nd
-            '119', #natures-protection
-            '414', #orijen
-            '45', #orijen
-            '332', #pro-plan
-            '175', #pro-choice
-            '226', #profine
-            '311', #proline
-            '20', #reflex
-            '34', #royal-canin
-            '51', #sanabelle
-        ]
-        self.wet_brands = [
-            '429', #animonda
-            '174',#chefs-choice
-            '29', #dr-clauders
-            '95', #dr-sachi
-            '406', #felicia
-            '78', #felix
-            '42', #gim-cat
-            '57', #gourmet-gold
-            '426', #hills
-            '62', #hills
-            '44', #matisse
-            '168', #miamor
-            '50', #miglior-cane
-            '86', #miglior-gatto
-            '31', #nd
-            '283', #nutri-feline
-            '368', #patimax
-            '363', #perfect
-            '281', #plasir
-            '98', #prevital
-            '332', #pro-plan
-            '20', #reflex
-            '165', #rokus
-            '34', #royal-canin
-            '116', #schesir
-            '316', #single
-            '89', #stuzzy
-            '23', #tommy
-            '65', #whiskas
-        ]
-        self.brands = []
+        self.dry_brands = []
+        self.wet_brands = ['65', '251', '275', '96', '252', '12', '266', '46', '75', '94', '282', '57', '280', '15',
+                           '16', '47', '76', '41', '43', '276', '40', '42', '32', '261', '257', '35', '7', '277', '150',
+                           '30', '290', '6', '64', '180', '81', '254', '91']
+        self.brands = ['45', '253', '264', '251', '283', '275', '96', '158', '252', '79', '9', '46', '48', '36', '75',
+                       '280', '49', '47', '76', '37', '50', '41', '8', '43', '40', '42', '44', '159', '277', '278',
+                       '7', '13', '28', '30', '255', '6', '34', '91']
 
     # --type page
 
@@ -84,8 +29,7 @@ class Command(BaseCommand):
             self._page_children(brand, 1)
 
     def _page_content(self, brand, page):
-
-        url = 'https://www.petgross.com/api/product/GetProductList?FilterJson=%7B%22CategoryIdList%22%3A%5B' + self.food_type + '%5D%2C%22BrandIdList%22%3A%5B' + str(brand) + '%5D%2C%22SupplierIdList%22%3A%5B%5D%2C%22TagIdList%22%3A%5B%5D%2C%22TagId%22%3A-1%2C%22FilterObject%22%3A%5B%5D%2C%22MinStockAmount%22%3A-1%2C%22IsShowcaseProduct%22%3A-1%2C%22IsOpportunityProduct%22%3A-1%2C%22IsNewProduct%22%3A-1%2C%22IsDiscountedProduct%22%3A-1%2C%22IsShippingFree%22%3A-1%2C%22IsProductCombine%22%3A-1%2C%22MinPrice%22%3A0%2C%22MaxPrice%22%3A0%2C%22SearchKeyword%22%3A%22%22%2C%22StrProductIds%22%3A%22%22%2C%22IsSimilarProduct%22%3Afalse%2C%22RelatedProductId%22%3A0%2C%22ProductKeyword%22%3A%22%22%2C%22PageContentId%22%3A0%2C%22StrProductIDNotEqual%22%3A%22%22%2C%22IsVariantList%22%3A-1%2C%22IsVideoProduct%22%3A-1%2C%22ShowBlokVideo%22%3A-1%2C%22VideoSetting%22%3A%7B%22ShowProductVideo%22%3A-1%2C%22AutoPlayVideo%22%3A-1%7D%2C%22ShowList%22%3A1%2C%22VisibleImageCount%22%3A6%2C%22ShowCounterProduct%22%3A-1%7D&PagingJson=%7B%22PageItemCount%22%3A0%2C%22PageNumber%22%3A' + str(page) + '%2C%22OrderBy%22%3A%22KATEGORISIRA%22%2C%22OrderDirection%22%3A%22ASC%22%7D&CreateFilter=true'
+        url = 'https://www.petzzshop.com/api/product/GetProductList?FilterJson=%7B%22CategoryIdList%22%3A%5B' + self.food_type + '%5D%2C%22BrandIdList%22%3A%5B' + str(brand) + '%5D%2C%22SupplierIdList%22%3A%5B%5D%2C%22TagIdList%22%3A%5B%5D%2C%22TagId%22%3A-1%2C%22FilterObject%22%3A%5B%5D%2C%22MinStockAmount%22%3A-1%2C%22IsShowcaseProduct%22%3A-1%2C%22IsOpportunityProduct%22%3A-1%2C%22IsNewProduct%22%3A-1%2C%22IsDiscountedProduct%22%3A-1%2C%22IsShippingFree%22%3A-1%2C%22IsProductCombine%22%3A-1%2C%22MinPrice%22%3A0%2C%22MaxPrice%22%3A0%2C%22SearchKeyword%22%3A%22%22%2C%22StrProductIds%22%3A%22%22%2C%22IsSimilarProduct%22%3Afalse%2C%22RelatedProductId%22%3A0%2C%22ProductKeyword%22%3A%22%22%2C%22PageContentId%22%3A0%2C%22StrProductIDNotEqual%22%3A%22%22%2C%22IsVariantList%22%3A-1%2C%22IsVideoProduct%22%3A-1%2C%22ShowBlokVideo%22%3A-1%2C%22VideoSetting%22%3A%7B%22ShowProductVideo%22%3A-1%2C%22AutoPlayVideo%22%3A-1%7D%2C%22ShowList%22%3A1%2C%22VisibleImageCount%22%3A6%2C%22ShowCounterProduct%22%3A-1%7D&PagingJson=%7B%22PageItemCount%22%3A0%2C%22PageNumber%22%3A' + str(page) + '%2C%22OrderBy%22%3A%22KATEGORISIRA%22%2C%22OrderDirection%22%3A%22ASC%22%7D&CreateFilter=true'
         r = requests.get(url)
         return BeautifulSoup(r.content, "lxml")
 
@@ -99,10 +43,10 @@ class Command(BaseCommand):
 
             link, created = ProductLink.objects.get_or_create(
                 brand=brand,
-                url='https://www.petgross.com' + url,
+                url='https://www.petzzshop.com' + url,
                 name=name,
                 food_type=self.food,
-                petshop_id=3
+                petshop_id=14
             )
 
             if link.food_id is not None:
@@ -118,7 +62,7 @@ class Command(BaseCommand):
                     if totalStockAmount > 0:
                         in_stock = True
 
-                    foodsite = FoodSite.objects.filter(url='https://www.petgross.com' + url).first()
+                    foodsite = FoodSite.objects.filter(url='https://www.petzzshop.com' + url).first()
 
                     if foodsite is None:
 
@@ -174,10 +118,10 @@ class Command(BaseCommand):
         food = options.get('food', None)
 
         if food == 'wet':
-            self.food_type = '49'
+            self.food_type = '26'
             self.brands = self.wet_brands
         elif food == 'dry':
-            self.food_type = '71'
+            self.food_type = '25'
             self.brands = self.dry_brands
 
         if crawl_type is not None:

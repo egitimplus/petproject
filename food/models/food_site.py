@@ -13,6 +13,7 @@ class FoodSite(models.Model):
     price = models.FloatField(default=0)
     stock = models.BooleanField(default=False)
     cargo = models.BooleanField(default=False)
+    best_before = models.DateField(null=True, blank=True)
     top_site = models.PositiveSmallIntegerField(default=0)
     created = models.DateField(auto_now_add=True)
     updated = models.DateField(auto_now=True)

@@ -12,28 +12,12 @@ class Command(BaseCommand):
         super().__init__(*args, **kwargs)
         self.food_type = None
         self.food = None
-        self.dry_brands = [
-            'royal-canin',
-            'dr-sacchi',
-            'pro-plan',
-            'trendline',
-            'reflex',
-            'orijen',
-            'econature',
-            'acana',
-            'enjoy',
-        ]
-        self.wet_brands = [
-            'felix',
-            'whiskas',
-            'miglior',
-            'purina',
-            'animonda',
-            'royal-canin',
-            'shinycat',
-            'pro-plan',
-            'orijen',
-        ]
+        self.dry_brands = ['76', '66', '88', '253', '85', '196', '15', '89', '24', '236', '304', '81', '296', '285',
+                           '343', '271', '87', '270', '75', '160', '129', '73', '290', '78', '79', '259', '68', '110',
+                           '286', '227', '77', '7', '183', '8', '13', '67', '6', '289', '20', '80']
+        self.wet_brands = ['86', '253', '196', '231', '339', '170', '24', '333', '296', '272', '102', '273', '160',
+                           '302', '78', '326', '168', '109', '31', '325', '287', '79', '268', '226', '267', '338', '77',
+                           '7', '301', '8', '107', '13', '218', '178', '303', '80']
         self.brands = []
 
     # --type page
@@ -47,51 +31,51 @@ class Command(BaseCommand):
 
     def _page_content(self, brand, page=None):
 
-        url = 'https://www.arkadaspet.com/kategori/' + self.food_type + '?marka=' + brand
+        url = 'https://www.kolaymama.com/' + self.food_type + '?brand=' + brand
 
         if page is not None:
-            url = url + '&tp=' + page
+            url = url + '&pg=' + page
 
         r = requests.get(url)
         return BeautifulSoup(r.content, "lxml")
 
     def _page_products(self, source, brand):
-        products = source.findAll("div", {"class": "showcaseTitle"})
+        products = source.findAll("div", {"class": "box col-3 col-md-4 col-sm-6 col-xs-6 productItem ease"})
 
         if products:
             for product in products:
                 url = product.a.get('href')
-                title = product.a.get('title')
+                title = product.img.get('title')
 
                 obj, created = ProductLink.objects.get_or_create(
                     brand=brand,
-                    url='https://www.arkadaspet.com' + url,
+                    url='https://www.kolaymama.com' + url,
                     name=title,
                     food_type=self.food,
-                    petshop_id=2
+                    petshop_id=9
                 )
         else:
             ProductLink.objects.filter(brand=brand, food_type=self.food).update(down=1)
 
     def _page_children(self, source, brand):
-        pagination = source.find("div", {"class": "_paginateContent"})
+        pagination = source.find("div", {"class": "productPager"})
 
-        if pagination and pagination.ul:
-            links = pagination.ul.find_all('li')
+        if pagination:
+
+            links = pagination.find_all('a')
 
             if links:
                 total = len(links)
 
-                for i in range(1, total - 1):
-                    split = links[i].a.get('href').split('?tp=')
-                    source = self._page_content(brand, split[1])
+                for i in range(1, total-3):
+                    source = self._page_content(brand, i)
                     self._page_products(source, brand)
 
     # --type product
 
     def _product(self):
         last_update = timezone.now().date() - timedelta(0)
-        links = ProductLink.objects.filter(updated__lte=last_update, petshop_id=2, down=0, active=1, food__isnull=False).all()
+        links = ProductLink.objects.filter(updated__lte=last_update, petshop_id=9, down=0, active=1, food__isnull=False).all()
 
         for link in links:
             if link.food_id is not None:
@@ -99,9 +83,9 @@ class Command(BaseCommand):
                 try:
                     source = self._product_content(link.url)
 
-                    old_price = source.find(id="kdv_dahil_cevrilmis_fiyat")
-                    new_price = source.find(id="indirimli_cevrilmis_fiyat")
-                    in_stock = source.find("div", {"class": "_floatLeft mR10"})
+                    old_price = source.find("span", {"class": "product-price-not-discounted"})
+                    new_price = source.find("span", {"class": "product-price"})
+                    in_stock = source.find("div", {"class": "fl col-12 add-to-cart-win inStock"})
 
                     if new_price:
                         new_price = new_price.text.strip().replace('İndirimli ', '').replace('TL', '').replace('.', '').replace(',', '.')
@@ -113,16 +97,13 @@ class Command(BaseCommand):
                     else:
                         old_price = new_price
 
-                    if float(new_price) >= 100:
+                    if float(new_price) >= 90:
                         free_cargo = True
                     else:
                         free_cargo = False
 
                     if in_stock:
-                        if in_stock.a.get('data-selector') == 'stock-warning':
-                            in_stock = False
-                        else:
-                            in_stock = True
+                        in_stock = True
                     else:
                         in_stock = False
 
@@ -172,10 +153,10 @@ class Command(BaseCommand):
         food = options.get('food', None)
 
         if food == 'wet':
-            self.food_type = 'konserveler-yas-mamalar'
+            self.food_type = 'kedi-yas-mamalar'
             self.brands = self.wet_brands
         elif food == 'dry':
-            self.food_type = 'kuru-mamalar-1'
+            self.food_type = 'kedi-kuru-mamalar'
             self.brands = self.dry_brands
 
         if crawl_type is not None:

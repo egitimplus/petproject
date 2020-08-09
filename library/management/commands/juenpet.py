@@ -8,20 +8,40 @@ from food.models import FoodSite
 
 
 class Command(BaseCommand):
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.food_type = None
         self.food = None
         self.dry_brands = [
-            'royal-canin',
-            'dr-sacchi',
-            'pro-plan',
-            'trendline',
-            'reflex',
-            'orijen',
-            'econature',
             'acana',
-            'enjoy',
+            'advance',
+            'appetite',
+            'beaphar',
+            'bestpet',
+            'bio-pet-active',
+            'biyoteknik',
+            'bozita',
+            'brekkies',
+            'brit',
+            'croque',
+            'dr-sacchi',
+            'econature',
+            'felicia',
+            'gimcat',
+            'hills',
+            'jungle',
+            'la-vital',
+            'matisse',
+            'naturea',
+            'orijen',
+            'paw-paw',
+            'prochoice',
+            'proplan',
+            'purina',
+            'royal-canin',
+            'true-instinct',
+            'whiskas'
         ]
         self.wet_brands = [
             'felix',
@@ -45,53 +65,54 @@ class Command(BaseCommand):
             self._page_products(source, brand)
             self._page_children(source, brand)
 
-    def _page_content(self, brand, page=None):
+    def _page_content(self, brand, page=1):
 
-        url = 'https://www.arkadaspet.com/kategori/' + self.food_type + '?marka=' + brand
-
-        if page is not None:
-            url = url + '&tp=' + page
-
+        url = 'https://www.juenpetmarket.com/' + self.food_type + '?m=' + brand + '&s=' + str(page)
         r = requests.get(url)
-        return BeautifulSoup(r.content, "lxml")
+        encoding = r.encoding if 'charset' in r.headers.get('content-type', '').lower() else None
+
+        return BeautifulSoup(r.content, "lxml", from_encoding=encoding)
 
     def _page_products(self, source, brand):
-        products = source.findAll("div", {"class": "showcaseTitle"})
+        products = source.findAll("li", {"class": "col-xs-12 col-sm-4 col-md-4"})
 
         if products:
             for product in products:
-                url = product.a.get('href')
-                title = product.a.get('title')
+                pr = product.find("div", {"class": "right-block"})
+
+                url = pr.a.get('href')
+                title = pr.a.text
 
                 obj, created = ProductLink.objects.get_or_create(
                     brand=brand,
-                    url='https://www.arkadaspet.com' + url,
+                    url='https://www.juenpetmarket.com' + url,
                     name=title,
                     food_type=self.food,
-                    petshop_id=2
+                    petshop_id=5
                 )
         else:
             ProductLink.objects.filter(brand=brand, food_type=self.food).update(down=1)
 
     def _page_children(self, source, brand):
-        pagination = source.find("div", {"class": "_paginateContent"})
+        pagination = source.find("div", {"class": "pagination"})
 
         if pagination and pagination.ul:
             links = pagination.ul.find_all('li')
 
             if links:
-                total = len(links)
+                total = len(links) - 2
 
-                for i in range(1, total - 1):
-                    split = links[i].a.get('href').split('?tp=')
-                    source = self._page_content(brand, split[1])
-                    self._page_products(source, brand)
+                if total > 1:
+                    for i in range(2, total - 2):
+                        source = self._page_content(brand, i)
+                        self._page_products(source, brand)
 
     # --type product
 
     def _product(self):
+
         last_update = timezone.now().date() - timedelta(0)
-        links = ProductLink.objects.filter(updated__lte=last_update, petshop_id=2, down=0, active=1, food__isnull=False).all()
+        links = ProductLink.objects.filter(updated__lte=last_update, petshop_id=5, down=0, active=1, food__isnull=False).all()
 
         for link in links:
             if link.food_id is not None:
@@ -99,30 +120,33 @@ class Command(BaseCommand):
                 try:
                     source = self._product_content(link.url)
 
-                    old_price = source.find(id="kdv_dahil_cevrilmis_fiyat")
-                    new_price = source.find(id="indirimli_cevrilmis_fiyat")
-                    in_stock = source.find("div", {"class": "_floatLeft mR10"})
+                    old_price = source.find("span", {"class": "old-price"})
 
-                    if new_price:
-                        new_price = new_price.text.strip().replace('İndirimli ', '').replace('TL', '').replace('.', '').replace(',', '.')
+                    new_price1 = source.find("span", {"class": "price colorOrange"})
+                    new_price2 = source.find("span", {"class": "priceDecimal colorOrange"})
+
+                    if new_price1:
+                        new_price1 = int(new_price1.text.strip().replace('.', '').replace(',', ''))
                     else:
-                        new_price = 0
+                        new_price1 = 0
+
+                    if new_price2:
+                        new_price2 = round(float(
+                            int(new_price2.text.strip().replace('TL', '').replace('.', '').replace(',', '')) / 100), 2)
+                    else:
+                        new_price2 = 0
+
+                    new_price = new_price1 + new_price2
 
                     if old_price:
                         old_price = old_price.text.strip().replace('TL', '').replace('.', '').replace(',', '.')
                     else:
                         old_price = new_price
 
-                    if float(new_price) >= 100:
-                        free_cargo = True
-                    else:
-                        free_cargo = False
+                    in_stock = source.select("a[class*=btn-add-cart]")
 
                     if in_stock:
-                        if in_stock.a.get('data-selector') == 'stock-warning':
-                            in_stock = False
-                        else:
-                            in_stock = True
+                        in_stock = True
                     else:
                         in_stock = False
 
@@ -138,7 +162,6 @@ class Command(BaseCommand):
                             old_price=old_price,
                             price=new_price,
                             stock=in_stock,
-                            cargo=free_cargo,
                             updated=timezone.now(),
                         )
 
@@ -149,7 +172,6 @@ class Command(BaseCommand):
                         foodsite.old_price = old_price
                         foodsite.price = new_price
                         foodsite.stock = in_stock
-                        foodsite.cargo = free_cargo
 
                         foodsite.save()
 
@@ -159,7 +181,9 @@ class Command(BaseCommand):
 
     def _product_content(self, url):
         r = requests.get(url)
-        return BeautifulSoup(r.content, "lxml")
+        encoding = r.encoding if 'charset' in r.headers.get('content-type', '').lower() else None
+
+        return BeautifulSoup(r.content, "lxml", from_encoding=encoding)
 
     # command
 
@@ -172,10 +196,10 @@ class Command(BaseCommand):
         food = options.get('food', None)
 
         if food == 'wet':
-            self.food_type = 'konserveler-yas-mamalar'
+            self.food_type = 'konserve-kedi-mamasi-k-82'
             self.brands = self.wet_brands
         elif food == 'dry':
-            self.food_type = 'kuru-mamalar-1'
+            self.food_type = 'kuru-kedi-mamasi-k-81'
             self.brands = self.dry_brands
 
         if crawl_type is not None:
@@ -191,6 +215,7 @@ class Command(BaseCommand):
                 print('Yanlış seçim yaptınız --type')
         else:
             print('Seçim yapmadın  --type')
+
 
         """
         --food : wet, dry
