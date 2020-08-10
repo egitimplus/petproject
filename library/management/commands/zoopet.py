@@ -59,13 +59,14 @@ class Command(BaseCommand):
             name = product.get('name')
 
             link, created = ProductLink.objects.get_or_create(
-                brand=brand,
                 url='https://www.zoopet.com.tr' + url,
-                name=name,
-                food_type=self.food,
-                petshop_id=7
+                defaults={
+                    'brand': brand,
+                    'name': name,
+                    'food_type': self.food,
+                    'petshop_id': 7
+                }
             )
-
             if link.food_id is not None:
                 try:
                     totalStockAmount = product.get('totalStockAmount')
@@ -111,7 +112,7 @@ class Command(BaseCommand):
                     ProductLink.objects.filter(id=link.id).update(down=1, updated=timezone.now())
 
     def _page_children(self, brand, page):
-        source = self.get_brand_content(brand, page)
+        source = self._page_content(brand, page)
         site_json = json.loads(source.text)
 
         totalProductCount = site_json.get('totalProductCount')
@@ -142,9 +143,7 @@ class Command(BaseCommand):
             self.brands = self.dry_brands
 
         if crawl_type is not None:
-            if crawl_type == 'product':
-                self._product()
-            elif crawl_type == 'page':
+            if crawl_type == 'page':
                 if self.food_type is not None:
                     self.food = food
                     self._page()

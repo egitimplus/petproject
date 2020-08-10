@@ -83,12 +83,14 @@ class Command(BaseCommand):
                 url = pr.a.get('href')
                 title = pr.a.text
 
-                obj, created = ProductLink.objects.get_or_create(
-                    brand=brand,
+                link, created = ProductLink.objects.get_or_create(
                     url='https://www.juenpetmarket.com' + url,
-                    name=title,
-                    food_type=self.food,
-                    petshop_id=5
+                    defaults={
+                        'brand': brand,
+                        'name': title,
+                        'food_type': self.food,
+                        'petshop_id': 5
+                    }
                 )
         else:
             ProductLink.objects.filter(brand=brand, food_type=self.food).update(down=1)
@@ -111,8 +113,9 @@ class Command(BaseCommand):
 
     def _product(self):
 
-        last_update = timezone.now().date() - timedelta(0)
-        links = ProductLink.objects.filter(updated__lte=last_update, petshop_id=5, down=0, active=1, food__isnull=False).all()
+        #last_update = timezone.now().date() - timedelta(0)
+        #links = ProductLink.objects.filter(updated__lte=last_update, petshop_id=5, down=0, active=1, food__isnull=False).all()
+        links = ProductLink.objects.filter(petshop_id=5, down=0, active=1, food__isnull=False).all()
 
         for link in links:
             if link.food_id is not None:

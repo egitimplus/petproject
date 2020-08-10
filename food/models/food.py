@@ -28,12 +28,12 @@ class Food(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True)
 
     class Meta:
-        ordering = ['id']
+        ordering = ['name']
         verbose_name = "Cat Food"
         verbose_name_plural = "Cat Foods"
 
     def __str__(self):
-        return self.name
+        return self.name + ' - ' + self.size.first().name
 
     def save(self, force_insert=False, force_update=False, using=None):
 

@@ -50,8 +50,6 @@ INSTALLED_APPS = [
     'library',
     'document',
     'versatileimagefield',
-
-
 ]
 
 MIDDLEWARE = [
@@ -167,4 +165,3 @@ CORS_ALLOW_HEADERS = (
 
 X_FRAME_OPTIONS = 'SAMEORIGIN'
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10240
-

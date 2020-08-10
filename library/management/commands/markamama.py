@@ -65,7 +65,7 @@ class Command(BaseCommand):
 
     # --type page
 
-    def _page(self, food_type):
+    def _page(self):
         for brand in self.brands:
             source = self._page_content(brand)
             self._page_products(source, brand)
@@ -83,15 +83,19 @@ class Command(BaseCommand):
 
         if products:
             for product in products:
+
+                br = product.find("a", {"class": "col col-12 productBrand"})
                 url = product.a.get('href')
                 title = product.img.get('alt')
 
-                obj, created = ProductLink.objects.get_or_create(
-                    brand=brand,
+                link, created = ProductLink.objects.get_or_create(
                     url='https://www.markamama.com.tr' + url,
-                    name=title,
-                    food_type=self.food,
-                    petshop_id=4
+                    defaults={
+                        'brand': brand,
+                        'name': title,
+                        'food_type': self.food,
+                        'petshop_id': 4
+                    }
                 )
         else:
             ProductLink.objects.filter(brand=brand, food_type=self.food).update(down=1)
@@ -110,8 +114,9 @@ class Command(BaseCommand):
 
     def _product(self):
 
-        last_update = timezone.now().date() - timedelta(0)
-        links = ProductLink.objects.filter(updated__lte=last_update, petshop_id=4, down=0, active=1, food__isnull=False).all()
+        #last_update = timezone.now().date() - timedelta(0)
+        #links = ProductLink.objects.filter(updated__lte=last_update, petshop_id=4, down=0, active=1, food__isnull=False).all()
+        links = ProductLink.objects.filter(petshop_id=4, down=0, active=1, food__isnull=False).all()
 
         for link in links:
             if link.food_id is None:

@@ -13,13 +13,13 @@ class Command(BaseCommand):
         super().__init__(*args, **kwargs)
         self.food_type = None
         self.food = None
-        self.dry_brands = []
+        self.dry_brands = ['45', '253', '264', '251', '283', '275', '96', '158', '252', '79', '9', '46', '48', '36',
+                           '75', '280', '49', '47', '76', '37', '50', '41', '8', '43', '40', '42', '44', '159', '277',
+                           '278', '7', '13', '28', '30', '255', '6', '34', '91']
         self.wet_brands = ['65', '251', '275', '96', '252', '12', '266', '46', '75', '94', '282', '57', '280', '15',
                            '16', '47', '76', '41', '43', '276', '40', '42', '32', '261', '257', '35', '7', '277', '150',
                            '30', '290', '6', '64', '180', '81', '254', '91']
-        self.brands = ['45', '253', '264', '251', '283', '275', '96', '158', '252', '79', '9', '46', '48', '36', '75',
-                       '280', '49', '47', '76', '37', '50', '41', '8', '43', '40', '42', '44', '159', '277', '278',
-                       '7', '13', '28', '30', '255', '6', '34', '91']
+        self.brands = []
 
     # --type page
 
@@ -42,11 +42,13 @@ class Command(BaseCommand):
             name = product.get('name')
 
             link, created = ProductLink.objects.get_or_create(
-                brand=brand,
                 url='https://www.petzzshop.com' + url,
-                name=name,
-                food_type=self.food,
-                petshop_id=14
+                defaults={
+                    'brand': brand,
+                    'name': name,
+                    'food_type': self.food,
+                    'petshop_id': 14
+                }
             )
 
             if link.food_id is not None:
@@ -94,7 +96,7 @@ class Command(BaseCommand):
                     ProductLink.objects.filter(id=link.id).update(down=1, updated=timezone.now())
 
     def _page_children(self, brand, page):
-        source = self.get_brand_content(brand, page)
+        source = self._page_content(brand, page)
         site_json = json.loads(source.text)
 
         totalProductCount = site_json.get('totalProductCount')
@@ -125,9 +127,7 @@ class Command(BaseCommand):
             self.brands = self.dry_brands
 
         if crawl_type is not None:
-            if crawl_type == 'product':
-                self._product()
-            elif crawl_type == 'page':
+            if crawl_type == 'page':
                 if self.food_type is not None:
                     self.food = food
                     self._page()

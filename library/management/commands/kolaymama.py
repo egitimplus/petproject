@@ -34,7 +34,7 @@ class Command(BaseCommand):
         url = 'https://www.kolaymama.com/' + self.food_type + '?brand=' + brand
 
         if page is not None:
-            url = url + '&pg=' + page
+            url = url + '&pg=' + str(page)
 
         r = requests.get(url)
         return BeautifulSoup(r.content, "lxml")
@@ -46,13 +46,27 @@ class Command(BaseCommand):
             for product in products:
                 url = product.a.get('href')
                 title = product.img.get('title')
+                name = title.split(' - ')
 
-                obj, created = ProductLink.objects.get_or_create(
-                    brand=brand,
+                if len(name) > 2:
+                    product_name = title.strip()
+                    brand_name = name[0]
+
+                elif len(name) < 2:
+                    product_name = title
+                    brand_name = brand
+                else:
+                    product_name = name[1].strip()
+                    brand_name = name[0]
+
+                link, created = ProductLink.objects.get_or_create(
                     url='https://www.kolaymama.com' + url,
-                    name=title,
-                    food_type=self.food,
-                    petshop_id=9
+                    defaults={
+                        'brand': brand,
+                        'name': product_name,
+                        'food_type': self.food,
+                        'petshop_id': 9
+                    }
                 )
         else:
             ProductLink.objects.filter(brand=brand, food_type=self.food).update(down=1)
@@ -74,8 +88,9 @@ class Command(BaseCommand):
     # --type product
 
     def _product(self):
-        last_update = timezone.now().date() - timedelta(0)
-        links = ProductLink.objects.filter(updated__lte=last_update, petshop_id=9, down=0, active=1, food__isnull=False).all()
+        #last_update = timezone.now().date() - timedelta(0)
+        #links = ProductLink.objects.filter(updated__lte=last_update, petshop_id=9, down=0, active=1, food__isnull=False).all()
+        links = ProductLink.objects.filter(petshop_id=9, down=0, active=1, food__isnull=False).all()
 
         for link in links:
             if link.food_id is not None:

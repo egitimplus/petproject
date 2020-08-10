@@ -50,7 +50,7 @@ class Command(BaseCommand):
         url = 'https://www.arkadaspet.com/kategori/' + self.food_type + '?marka=' + brand
 
         if page is not None:
-            url = url + '&tp=' + page
+            url = url + '&tp=' + str(page)
 
         r = requests.get(url)
         return BeautifulSoup(r.content, "lxml")
@@ -63,12 +63,14 @@ class Command(BaseCommand):
                 url = product.a.get('href')
                 title = product.a.get('title')
 
-                obj, created = ProductLink.objects.get_or_create(
-                    brand=brand,
+                link, created = ProductLink.objects.get_or_create(
                     url='https://www.arkadaspet.com' + url,
-                    name=title,
-                    food_type=self.food,
-                    petshop_id=2
+                    defaults={
+                        'brand': brand,
+                        'name': title,
+                        'food_type': self.food,
+                        'petshop_id': 2
+                    }
                 )
         else:
             ProductLink.objects.filter(brand=brand, food_type=self.food).update(down=1)
@@ -90,8 +92,9 @@ class Command(BaseCommand):
     # --type product
 
     def _product(self):
-        last_update = timezone.now().date() - timedelta(0)
-        links = ProductLink.objects.filter(updated__lte=last_update, petshop_id=2, down=0, active=1, food__isnull=False).all()
+        #last_update = timezone.now().date() - timedelta(0)
+        #links = ProductLink.objects.filter(updated__lte=last_update, petshop_id=2, down=0, active=1, food__isnull=False).all()
+        links = ProductLink.objects.filter(petshop_id=2, down=0, active=1, food__isnull=False).all()
 
         for link in links:
             if link.food_id is not None:

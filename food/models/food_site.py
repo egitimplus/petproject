@@ -8,7 +8,7 @@ class FoodSite(models.Model):
     food = models.ForeignKey('food.Food', on_delete=models.CASCADE, related_name='foodsite')
     petshop = models.ForeignKey('company.PetShop', on_delete=models.CASCADE, related_name='foodsite')
     size = models.ForeignKey('food.FoodSize', on_delete=models.SET_NULL, null=True, blank=True, related_name='foodsite')
-    url = models.URLField()
+    url = models.TextField()
     old_price = models.FloatField(default=0)
     price = models.FloatField(default=0)
     stock = models.BooleanField(default=False)
