@@ -35,6 +35,8 @@ class FoodSerializer(FlexFieldsModelSerializer):
             'brand': 'company.BrandSerializer',
             'type': 'food.FoodTypeSerializer',
             'image': ('document.ImageSerializer', {'many': True}),
+            'foodsite': ('food.FoodSiteSerializer', {'many': True}),
+            'foodcomment': ('food.FoodCommentSerializer', {'many': True}),
             'guaranteed': 'food.FoodGuaranteedSerializer',
             'dry': 'food.FoodDrySerializer',
             'calorie': 'food.FoodCalorieSerializer',

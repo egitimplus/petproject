@@ -3,7 +3,6 @@ from bs4 import BeautifulSoup, NavigableString, Tag
 import requests
 from library.models import ProductLink
 from django.utils import timezone
-from datetime import timedelta
 from food.models import FoodSite, FoodComment, FoodPromotion, FoodSize
 from django.db.models import Max
 from datetime import datetime
@@ -144,7 +143,7 @@ class Command(BaseCommand):
 
         #last_update = timezone.now().date() - timedelta(0)
         #links = ProductLink.objects.filter(updated__lte=last_update, petshop_id=2, down=0, active=1, food__isnull=False).all()
-        links = ProductLink.objects.filter(petshop_id=2, down=0, active=1, food__isnull=False).all()
+        links = ProductLink.objects.filter(petshop_id=1, down=0, active=1, food__isnull=False).all()
 
         for link in links:
             if link.food_id is not None:
@@ -167,12 +166,16 @@ class Command(BaseCommand):
                             free_cargo = True
                         else:
                             free_cargo = False
+                    else:
+                        free_cargo = False
 
                     if in_stock:
                         if in_stock.text.strip() == 'Tükendi':
                             in_stock = False
                         else:
                             in_stock = True
+                    else:
+                        in_stock = False
 
                     title = ''
                     skt = None
@@ -260,7 +263,8 @@ class Command(BaseCommand):
 
                     ProductLink.objects.filter(id=link.id).update(down=0, updated=timezone.now())
                     self._product_comments(source, link.food)
-                except:
+                except Exception as e:
+                    print(e)
                     ProductLink.objects.filter(id=link.id).update(down=1, updated=timezone.now())
 
     def _product_content(self, url):
@@ -279,36 +283,37 @@ class Command(BaseCommand):
 
         for review in reviews:
             author = review.split('"author": "')
-            author = author[1].split('"')
+            if len(author) > 1:
+                author = author[1].split('"')
 
-            description = review.split('"description": "')
-            description = description[1].split('"')
+                description = review.split('"description": "')
+                description = description[1].split('"')
 
-            rating = review.split('"ratingValue": "')
-            rating = rating[1].split('"')
+                rating = review.split('"ratingValue": "')
+                rating = rating[1].split('"')
 
-            published = review.split('"datePublished": "')
-            published = published[1].split('"')
-            published = datetime.strptime(published[0], '%Y-%m-%d')
-            published = timezone.make_aware(published, timezone.get_current_timezone())
+                published = review.split('"datePublished": "')
+                published = published[1].split('"')
+                published = datetime.strptime(published[0], '%Y-%m-%d')
+                published = timezone.make_aware(published, timezone.get_current_timezone())
 
-            save = 0
+                save = 1 # daha sonra yeni yorumlar gelsin diye sıfır olacak
 
-            if comment['max_date'] is None:
-                save = 1
-            elif published > comment['max_date']:
-                save = 1
+                if comment['max_date'] is None:
+                    save = 1
+                elif published > comment['max_date']:
+                    save = 1
 
-            if save == 1:
-                fc = FoodComment(
-                    food=food,
-                    name=author[0],
-                    created=published,
-                    content=description[0],
-                    rating=rating[0],
-                    petshop_id=1,
-                )
-                fc.save()
+                if save == 1:
+                    fc = FoodComment(
+                        food=food,
+                        name=author[0],
+                        created=published,
+                        content=description[0],
+                        rating=rating[0],
+                        petshop_id=1,
+                    )
+                    fc.save()
 
     # command
 

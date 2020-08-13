@@ -3,8 +3,10 @@ from bs4 import BeautifulSoup
 import requests
 from library.models import ProductLink
 from django.utils import timezone
-from food.models import FoodSite
+from food.models import FoodSite, FoodComment
 import json
+from django.db.models import Max
+from datetime import datetime
 
 
 class Command(BaseCommand):
@@ -38,7 +40,6 @@ class Command(BaseCommand):
     def _page_products(self, site_json):
 
         for product in site_json['products']:
-
             url = product.get('defaultUrl')
             brand = product.get('brand')
             name = product.get('name')
@@ -52,16 +53,17 @@ class Command(BaseCommand):
                     'petshop_id': 8
                 }
             )
-
+            
             if link.food_id is not None:
                 try:
+                    productId = product.get('productId')
                     totalStockAmount = product.get('totalStockAmount')
                     productCartPriceStr = product.get('productCartPriceStr')
                     productSellPriceStr = product.get('productSellPriceStr')
                     free_cargo = product.get('freeShipping')
 
-                    old_price = productSellPriceStr.replace('₺', '').replace('.', '').replace(',', '.')
-                    new_price = productCartPriceStr.replace('₺', '').replace('.', '').replace(',', '.')
+                    old_price = productSellPriceStr.replace('TL', '').replace('₺', '').replace('.', '').replace(',', '.')
+                    new_price = productCartPriceStr.replace('TL', '').replace('₺', '').replace('.', '').replace(',', '.')
                     in_stock = False
                     if totalStockAmount > 0:
                         in_stock = True
@@ -92,9 +94,12 @@ class Command(BaseCommand):
                         foodsite.cargo = free_cargo
 
                         foodsite.save()
+                        ProductLink.objects.filter(id=link.id).update(down=0, updated=timezone.now())
 
-                    ProductLink.objects.filter(id=link.id).update(down=0, updated=timezone.now())
-                except:
+                    self._product_comments(productId, link.food)
+
+                except Exception as e:
+                    print(e)
                     ProductLink.objects.filter(id=link.id).update(down=1, updated=timezone.now())
 
     def _page_children(self, brand, page):
@@ -111,6 +116,54 @@ class Command(BaseCommand):
             if nextProductCount > 0:
                 self._page_children(brand, currentPage+1)
 
+    def _product_content(self, url):
+        r = requests.get(url)
+        return BeautifulSoup(r.content, "lxml")
+
+    def _product_comments(self, productId, food):
+
+        source = self._product_content('https://www.petburada.com/api/product/GetComments?productId=' + str(productId))
+        if source:
+            comments = source.text
+            comments = comments.replace('{"comments":[{"', '')
+            comments = comments.replace('],"isError":false,"errorMessage":null,"errorCode":null,"model":null}', '')
+            comments = comments.split('{')
+
+            c = FoodComment.objects.filter(food_id=food.id, petshop_id=8).aggregate(max_date=Max('created'))
+
+            for comment in comments:
+
+                content = comment.split('"comment":"')
+
+                if len(content) > 1:
+                    content = content[1].split('"}')
+
+                    author = comment.split('"memberName":"')
+                    author = author[1].split('",')
+
+                    published = comment.split('"commentDateFormatted":"')
+                    published = published[1].split('",')
+                    published = published[0].split(' ')
+                    published = datetime.strptime(published[0], '%d-%m-%Y')
+                    published = timezone.make_aware(published, timezone.get_current_timezone())
+
+                    save = 1 # daha sonra yeni yorumlar gelsin diye sıfır olacak
+
+                    if c['max_date'] is None:
+                        save = 1
+                    elif published > c['max_date']:
+                        save = 1
+
+                    if save == 1:
+                        fc = FoodComment(
+                            food=food,
+                            name=author[0],
+                            created=published,
+                            content=content[0],
+                            rating=0,
+                            petshop_id=8,
+                        )
+                        fc.save()
     # command
 
     def add_arguments(self, parser):

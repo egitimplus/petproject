@@ -19,5 +19,8 @@ class FoodSite(models.Model):
     updated = models.DateField(auto_now=True)
     code = models.CharField(max_length=255)
 
+    class Meta:
+        ordering = ('price',)
+
     def __str__(self):
-        return '%s - %s' % (self.company.name, self.name)
+        return '%s - %s' % (self.petshop.name, self.name)

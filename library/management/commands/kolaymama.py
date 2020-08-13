@@ -150,7 +150,8 @@ class Command(BaseCommand):
                         foodsite.save()
 
                     ProductLink.objects.filter(id=link.id).update(down=0, updated=timezone.now())
-                except:
+                except Exception as e:
+                    print(e)
                     ProductLink.objects.filter(id=link.id).update(down=1, updated=timezone.now())
 
     def _product_content(self, url):

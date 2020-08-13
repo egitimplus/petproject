@@ -94,6 +94,7 @@ class Command(BaseCommand):
     def _product(self):
         #last_update = timezone.now().date() - timedelta(0)
         #links = ProductLink.objects.filter(updated__lte=last_update, petshop_id=2, down=0, active=1, food__isnull=False).all()
+        #links = ProductLink.objects.filter(petshop_id=2, down=1, active=1, food__isnull=False).all()
         links = ProductLink.objects.filter(petshop_id=2, down=0, active=1, food__isnull=False).all()
 
         for link in links:
@@ -157,7 +158,8 @@ class Command(BaseCommand):
                         foodsite.save()
 
                     ProductLink.objects.filter(id=link.id).update(down=0, updated=timezone.now())
-                except:
+                except Exception as e:
+                    print(e)
                     ProductLink.objects.filter(id=link.id).update(down=1, updated=timezone.now())
 
     def _product_content(self, url):

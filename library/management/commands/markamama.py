@@ -119,7 +119,7 @@ class Command(BaseCommand):
         links = ProductLink.objects.filter(petshop_id=4, down=0, active=1, food__isnull=False).all()
 
         for link in links:
-            if link.food_id is None:
+            if link.food_id is not None:
 
                 try:
                     source = self._product_content(link.url)
@@ -208,7 +208,8 @@ class Command(BaseCommand):
                         foodsite.save()
 
                     ProductLink.objects.filter(id=link.id).update(down=0, updated=timezone.now())
-                except:
+                except Exception as e:
+                    print(e)
                     ProductLink.objects.filter(id=link.id).update(down=1, updated=timezone.now())
 
     def _product_content(self, url):

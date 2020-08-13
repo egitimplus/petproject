@@ -12,6 +12,7 @@ class PetShop(models.Model):
     created = models.DateField(auto_now_add=True)
     updated = models.DateField(auto_now=True)
     active = models.PositiveSmallIntegerField(default=1)
+    image = models.ForeignKey('document.Image', related_name='petshop', on_delete=models.SET_NULL, blank=True, null=True)
 
     def __str__(self):
         return self.name
