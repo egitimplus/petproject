@@ -3,8 +3,10 @@ from bs4 import BeautifulSoup
 import requests
 from library.models import ProductLink
 from django.utils import timezone
-from datetime import timedelta
-from food.models import FoodSite
+from food.models import FoodSite, FoodComment
+import json
+from django.db.models import Max
+from datetime import datetime
 
 
 class Command(BaseCommand):
@@ -68,6 +70,7 @@ class Command(BaseCommand):
                         'petshop_id': 9
                     }
                 )
+
         else:
             ProductLink.objects.filter(brand=brand, food_type=self.food).update(down=1)
 
@@ -90,7 +93,7 @@ class Command(BaseCommand):
     def _product(self):
         #last_update = timezone.now().date() - timedelta(0)
         #links = ProductLink.objects.filter(updated__lte=last_update, petshop_id=9, down=0, active=1, food__isnull=False).all()
-        links = ProductLink.objects.filter(petshop_id=9, down=0, active=1, food__isnull=False).all()
+        links = ProductLink.objects.filter(petshop_id=9, active=1, food__isnull=False).all()
 
         for link in links:
             if link.food_id is not None:
@@ -149,14 +152,50 @@ class Command(BaseCommand):
 
                         foodsite.save()
 
+                    self._product_comments(source, link.food)
+
                     ProductLink.objects.filter(id=link.id).update(down=0, updated=timezone.now())
                 except Exception as e:
                     print(e)
-                    ProductLink.objects.filter(id=link.id).update(down=1, updated=timezone.now())
+                    ProductLink.objects.filter(id=link.id).update(down=0, updated=timezone.now())
 
     def _product_content(self, url):
         r = requests.get(url)
         return BeautifulSoup(r.content, "lxml")
+
+    def _product_comments(self, source, food):
+        comments_li = source.find(id="commentTab")
+        comments_li = comments_li['data-href'].split('comment/')
+
+        comment_data = self._product_content(
+            'https://www.kolaymama.com/srv/service/product-detail/comments/' + comments_li[1])
+        comment_json = json.loads(comment_data.text)
+
+        comments = comment_json.get('COMMENTS')
+        if comments:
+            c = FoodComment.objects.filter(food_id=food.id, petshop_id=9).aggregate(max_date=Max('created'))
+
+            for comment in comments:
+                published = datetime.fromtimestamp(int(comment['DATE']))
+                published = timezone.make_aware(published, timezone.get_current_timezone())
+
+                save = 1  # daha sonra yeni yorumlar gelsin diye sıfır olacak
+
+                if c['max_date'] is None:
+                    save = 1
+                elif published > c['max_date']:
+                    save = 1
+
+                if save == 1:
+                    fc = FoodComment(
+                        food=food,
+                        name=comment['NAME'],
+                        created=published,
+                        content=comment['COMMENT'],
+                        rating=round(comment['RATE'] / 4),
+                        petshop_id=9,
+                    )
+                    fc.save()
 
     # command
 

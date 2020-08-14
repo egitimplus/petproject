@@ -50,6 +50,8 @@ INSTALLED_APPS = [
     'library',
     'document',
     'versatileimagefield',
+    'django_celery_results',
+    'django_celery_beat',
 ]
 
 MIDDLEWARE = [
@@ -165,3 +167,22 @@ CORS_ALLOW_HEADERS = (
 
 X_FRAME_OPTIONS = 'SAMEORIGIN'
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10240
+
+CELERY_BROKER_URL = env('BROKER_URL')
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TASK_SERIALIZER = 'json'
+
+CELERY_RESULT_BACKEND = 'django-db'
+DJANGO_CELERY_RESULTS_TASK_ID_MAX_LENGTH = 191
+
+# celery setting.
+CELERY_CACHE_BACKEND = 'default'
+
+# django setting.
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'django_cache',
+    }
+}
