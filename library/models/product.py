@@ -15,6 +15,8 @@ class ProductLink(models.Model):
     food = models.ForeignKey('food.Food', on_delete=models.SET_NULL, null=True, blank=True, related_name='productlink')
     petshop = models.ForeignKey('company.PetShop', on_delete=models.SET_NULL, null=True, blank=True, related_name='productlink')
     food_brand = models.ForeignKey('company.Brand', on_delete=models.SET_NULL, null=True, blank=True, related_name='productlink')
+    product_crawl = models.BooleanField(default=0)
+    comment_crawl = models.BooleanField(default=0)
 
     def __str__(self):
         return '%s - %s' % (self.brand, self.name)
