@@ -64,7 +64,7 @@ class Command(BaseCommand):
                 link, created = ProductLink.objects.get_or_create(
                     url='https://www.kolaymama.com' + url,
                     defaults={
-                        'brand': brand,
+                        'brand': brand_name,
                         'name': product_name,
                         'food_type': self.food,
                         'petshop_id': 9

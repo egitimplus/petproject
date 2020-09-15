@@ -6,22 +6,48 @@ from django.db.models import Max
 from datetime import datetime
 
 
-class TicimaxCommentCrawler:
+class CommentCrawler:
 
     def __init__(self, **kwargs):
-        self.url = kwargs.get('url', None)
-        self.product_id = kwargs.get('product_id', None)
-        self.food = kwargs.get('food', None)
-        self.petshop = kwargs.get('petshop', None)
+        parent = kwargs.get('parent', None)
+        self.link = parent.link
+        self.petshop = parent.petshop
+        self.url = parent.url
 
-    def content(self, url):
+    def content(self):
 
-        r = requests.get(url)
+        r = requests.get(self.url)
         return BeautifulSoup(r.content, "lxml")
 
-    def product_comments(self):
+    def author(self, comment):
+        author = comment.split('"memberName":"')
+        author = author[1].split('",')
 
-        source = self.content(self.url +'/api/product/GetComments?productId=' + str(self.product_id))
+        return author[0]
+
+    def description(self, comment):
+        content = comment.split('"comment":"')
+
+        if len(content) > 1:
+            content = content[1].split('"}')
+            return content[0]
+
+        return None
+
+    def rating(self, comment):
+        return 0
+
+    def published(self, comment):
+        published = comment.split('"commentDateFormatted":"')
+        published = published[1].split('",')
+        published = published[0].split(' ')
+        published = datetime.strptime(published[0], '%d-%m-%Y')
+        published = timezone.make_aware(published, timezone.get_current_timezone())
+        return published
+
+    def run(self):
+
+        source = self.content()
 
         if source:
             comments = source.text
@@ -29,23 +55,14 @@ class TicimaxCommentCrawler:
             comments = comments.replace('],"isError":false,"errorMessage":null,"errorCode":null,"model":null}', '')
             comments = comments.split('{')
 
-            c = FoodComment.objects.filter(food_id=self.food.id, petshop_id=self.petshop.id).aggregate(max_date=Max('created'))
+            c = FoodComment.objects.filter(food_id=self.link.food.id, petshop_id=self.petshop.id).aggregate(max_date=Max('created'))
 
             for comment in comments:
 
-                content = comment.split('"comment":"')
+                content = self.description(comment)
+                if content:
 
-                if len(content) > 1:
-                    content = content[1].split('"}')
-
-                    author = comment.split('"memberName":"')
-                    author = author[1].split('",')
-
-                    published = comment.split('"commentDateFormatted":"')
-                    published = published[1].split('",')
-                    published = published[0].split(' ')
-                    published = datetime.strptime(published[0], '%d-%m-%Y')
-                    published = timezone.make_aware(published, timezone.get_current_timezone())
+                    published = self.published(comment)
 
                     save = 1 # daha sonra yeni yorumlar gelsin diye sıfır olacak
 
@@ -56,11 +73,11 @@ class TicimaxCommentCrawler:
 
                     if save == 1:
                         fc = FoodComment(
-                            food=self.food,
-                            name=author[0],
+                            food=self.link.food,
+                            name=self.author(comment),
                             created=published,
-                            content=content[0],
-                            rating=0,
+                            content=content,
+                            rating=self.rating(comment),
                             petshop=self.petshop,
                         )
                         fc.save()

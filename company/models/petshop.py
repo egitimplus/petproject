@@ -13,6 +13,10 @@ class PetShop(models.Model):
     updated = models.DateField(auto_now=True)
     active = models.PositiveSmallIntegerField(default=1)
     image = models.ForeignKey('document.Image', related_name='petshop', on_delete=models.SET_NULL, blank=True, null=True)
+    product_crawl = models.BooleanField(default=0)
+    comment_crawl = models.BooleanField(default=0)
+    type = models.PositiveSmallIntegerField(default=0)
+    categories = models.CharField(max_length=255, default="")
 
     def __str__(self):
         return self.name

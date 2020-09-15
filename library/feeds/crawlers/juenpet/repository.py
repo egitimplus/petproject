@@ -1,9 +1,8 @@
 from .product import ProductCrawler
 from .shop import ShopCrawler
-from .comment import CommentCrawler
 
 
-class TicimaxRepository:
+class JuenPetRepository:
 
     def __init__(self, **kwargs):
 
@@ -23,6 +22,5 @@ class TicimaxRepository:
         return product
 
     def comments(self):
+        pass
 
-        comment = CommentCrawler(parent=self)
-        return comment

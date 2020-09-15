@@ -4,25 +4,17 @@ from food.models import FoodSite
 from django.db.models import F
 
 
-class TicimaxProductCrawler:
+class ProductCrawler:
 
     def __init__(self, **kwargs):
-        self.__parent = kwargs.get('parent', None)
-        self.__product = kwargs.get('product', None)
-        self.__link = kwargs.get('productlink', None)
-        self.__foodsite = FoodSite.objects.filter(url=self.parent.petshop.url + self.url).first()
 
-    @property
-    def product(self):
-        return self.__product
+        parent = kwargs.get('parent', None)
 
-    @product.setter
-    def product(self, value):
-        self.__product = value
+        self.product = parent.prod
+        self.link = parent.link
+        self.petshop = parent.petshop
 
-    @property
-    def parent(self):
-        return self.__parent
+        self.foodsite = FoodSite.objects.filter(url=self.url).first()
 
     @property
     def name(self):
@@ -49,23 +41,16 @@ class TicimaxProductCrawler:
 
     @property
     def url(self):
-        return self.product.get('defaultUrl')
-
-    @property
-    def foodsite(self):
-        return self.__foodsite
-
-    @property
-    def link(self):
-        return self.__link
+        return self.petshop.url + self.product.get('defaultUrl')
 
     def run(self):
         try:
             if self.foodsite is None:
+
                 fs = FoodSite(
                     food=self.link.food,
                     url=self.url,
-                    petshop=self.parent.petshop,
+                    petshop=self.petshop,
                     name=self.name,
                     old_price=self.old_price,
                     price=self.price,
@@ -77,11 +62,11 @@ class TicimaxProductCrawler:
                 fs.save()
 
             else:
-                self.__foodsite.old_price = self.old_price
-                self.__foodsite.price = self.price
-                self.__foodsite.stock = self.in_stock
-                self.__foodsite.cargo = self.shipping
-                self.__foodsite.save()
+                self.foodsite.old_price = self.old_price
+                self.foodsite.price = self.price
+                self.foodsite.stock = self.in_stock
+                self.foodsite.cargo = self.shipping
+                self.foodsite.save()
 
             ProductLink.objects.filter(id=self.link.id).update(down=0, updated=timezone.now())
         except Exception as e:

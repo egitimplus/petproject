@@ -3,7 +3,7 @@ from .shop import ShopCrawler
 from .comment import CommentCrawler
 
 
-class TicimaxRepository:
+class MarkamamaRepository:
 
     def __init__(self, **kwargs):
 
