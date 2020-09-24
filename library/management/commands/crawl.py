@@ -174,7 +174,6 @@ class Command(BaseCommand):
         # https://www.markamama.com.tr/srv/service/product/loader?kedi-konserve-mamalari&link=kedi-konserve-mamalari
         # https://www.markamama.com.tr/srv/service/product/loader?kedi-mamasi&link=kedi-mamasi
 
-
     def markamama_product(self):
         shop = PetShop.objects.get(id=4)
         product = ProductLink.objects.filter(petshop=shop).first()
