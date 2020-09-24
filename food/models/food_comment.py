@@ -12,3 +12,6 @@ class FoodComment(models.Model):
     rating = models.PositiveSmallIntegerField(default=0)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True)
     petshop = models.ForeignKey('company.PetShop', on_delete=models.SET_NULL, null=True, blank=True, related_name='foodcomment')
+
+    class Meta:
+        ordering = ['-created']
