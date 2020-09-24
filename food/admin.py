@@ -1,5 +1,5 @@
 from django.contrib import admin
-from food.models import Dry, Regnum, Calorie, Food, FoodSite, Guaranteed, FoodFor, FoodStage, FoodType, Ingredient, IngredientType, IngredientQuality, IngredientParent, FoodSize, FoodPackage
+from food.models import Dry, Regnum, Calorie, Food, FoodSite, Guaranteed, FoodComment, FoodFor, FoodStage, FoodType, Ingredient, IngredientType, IngredientQuality, IngredientParent, FoodSize, FoodPackage
 from django.db.models import Count
 # Register your models here.
 from django_summernote.admin import SummernoteModelAdmin
@@ -37,6 +37,9 @@ class FoodSiteAdmin(admin.ModelAdmin):
 class FoodForAdmin(admin.ModelAdmin):
     readonly_fields = ["slug"]
 
+@admin.register(FoodComment)
+class FoodCommentAdmin(admin.ModelAdmin):
+    pass
 
 @admin.register(FoodSize)
 class FoodSizeAdmin(admin.ModelAdmin):
