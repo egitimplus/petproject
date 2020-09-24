@@ -17,7 +17,6 @@ class ProductLink(models.Model):
     food_brand = models.ForeignKey('company.Brand', on_delete=models.SET_NULL, null=True, blank=True, related_name='productlink')
     product_id = models.PositiveIntegerField(default=0)
 
-
     def __str__(self):
         return '%s - %s' % (self.brand, self.name)
 
