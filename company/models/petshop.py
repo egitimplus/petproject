@@ -16,7 +16,7 @@ class PetShop(models.Model):
     product_crawl = models.BooleanField(default=0)
     comment_crawl = models.BooleanField(default=0)
     type = models.PositiveSmallIntegerField(default=0)
-    categories = models.CharField(max_length=255, default="")
+    categories = models.CharField(max_length=255, default="", blank=True, null=True)
 
     def __str__(self):
         return self.name
