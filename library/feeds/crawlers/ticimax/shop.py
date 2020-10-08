@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 from library.models import ProductLink
 import json
+from food.models import FoodSite
 
 
 class ShopCrawler:
@@ -16,6 +17,7 @@ class ShopCrawler:
         return BeautifulSoup(r.content, "lxml")
 
     def run(self):
+        self.url = self.parent.url + 'PageNumber%22%3A1%7D'
         source = self.crawl()
         content = json.loads(source.text)
 
@@ -28,7 +30,8 @@ class ShopCrawler:
 
             if nextProductCount > 0:
                 page = currentPage+1
-                self.url = self.petshop.url + '/api/product/GetProductList?FilterJson=%7B%22CategoryIdList%22%3A%5B' + self.petshop.categories + '%5D%2C%22BrandIdList%22%3A%5B%5D%2C%22SupplierIdList%22%3A%5B%5D%2C%22TagIdList%22%3A%5B%5D%2C%22TagId%22%3A-1%2C%22FilterObject%22%3A%5B%5D%2C%22MinStockAmount%22%3A-1%2C%22IsShowcaseProduct%22%3A-1%2C%22IsOpportunityProduct%22%3A-1%2C%22IsNewProduct%22%3A-1%2C%22IsDiscountedProduct%22%3A-1%2C%22IsShippingFree%22%3A-1%2C%22IsProductCombine%22%3A-1%2C%22MinPrice%22%3A0%2C%22MaxPrice%22%3A0%2C%22SearchKeyword%22%3A%22%22%2C%22StrProductIds%22%3A%22%22%2C%22IsSimilarProduct%22%3Afalse%2C%22RelatedProductId%22%3A0%2C%22ProductKeyword%22%3A%22%22%2C%22PageContentId%22%3A0%2C%22StrProductIDNotEqual%22%3A%22%22%2C%22IsVariantList%22%3A-1%2C%22IsVideoProduct%22%3A-1%2C%22ShowBlokVideo%22%3A-1%2C%22VideoSetting%22%3A%7B%22ShowProductVideo%22%3A-1%2C%22AutoPlayVideo%22%3A-1%7D%2C%22ShowList%22%3A1%2C%22VisibleImageCount%22%3A6%2C%22ShowCounterProduct%22%3A-1%7D&PagingJson=%7B%22PageItemCount%22%3A0%2C%22PageNumber%22%3A' + str(page) + '%2C%22OrderBy%22%3A%22KATEGORISIRA%22%2C%22OrderDirection%22%3A%22ASC%22%7D&CreateFilter=true'
+                p = 'PageNumber%22%3A' + str(page) + '%7D'
+                self.url = self.parent.url + p
                 self.run()
 
     def add(self, content):
@@ -49,6 +52,11 @@ class ShopCrawler:
                     'product_id': id
                 }
             )
+
+            if not created:
+                if link.name != name:
+                    FoodSite.objects.filter(url=url).delete()
+                    ProductLink.objects.filter(url=url).update(brand=brand, name=name, food_id=None)
 
             self.parent.link = link
             self.parent.prod = product

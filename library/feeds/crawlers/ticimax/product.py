@@ -45,28 +45,29 @@ class ProductCrawler:
 
     def run(self):
         try:
-            if self.foodsite is None:
+            if self.link.food:
+                if self.foodsite is None:
 
-                fs = FoodSite(
-                    food=self.link.food,
-                    url=self.url,
-                    petshop=self.petshop,
-                    name=self.name,
-                    old_price=self.old_price,
-                    price=self.price,
-                    stock=self.in_stock,
-                    cargo=self.shipping,
-                    updated=timezone.now,
-                )
+                    fs = FoodSite(
+                        food=self.link.food,
+                        url=self.url,
+                        petshop=self.petshop,
+                        name=self.name,
+                        old_price=self.old_price,
+                        price=self.price,
+                        stock=self.in_stock,
+                        cargo=self.shipping,
+                        updated=timezone.now,
+                    )
 
-                fs.save()
+                    fs.save()
 
-            else:
-                self.foodsite.old_price = self.old_price
-                self.foodsite.price = self.price
-                self.foodsite.stock = self.in_stock
-                self.foodsite.cargo = self.shipping
-                self.foodsite.save()
+                else:
+                    self.foodsite.old_price = self.old_price
+                    self.foodsite.price = self.price
+                    self.foodsite.stock = self.in_stock
+                    self.foodsite.cargo = self.shipping
+                    self.foodsite.save()
 
             ProductLink.objects.filter(id=self.link.id).update(down=0, updated=timezone.now())
         except Exception as e:

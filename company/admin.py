@@ -19,5 +19,4 @@ class PetShopAdmin(admin.ModelAdmin):
 
 @admin.register(Site)
 class SiteAdmin(admin.ModelAdmin):
-    list_display = ('company', 'brand', 'size', 'updated')
-    list_filter = ('company', 'size', 'brand')
+    pass

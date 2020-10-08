@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 from library.models import ProductLink
+from food.models import FoodSite
 
 
 class ShopCrawler:
@@ -37,6 +38,12 @@ class ShopCrawler:
                         'petshop': self.petshop
                     }
                 )
+
+                if not created:
+                    if link.name != title:
+                        FoodSite.objects.filter(url=url).delete()
+                        ProductLink.objects.filter(url=url).update(brand=brand, name=title, food_id=None)
+
 
     def pages(self, source):
         for i in range(2, 1000):

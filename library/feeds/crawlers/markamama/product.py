@@ -109,32 +109,32 @@ class ProductCrawler:
     def run(self):
         try:
             self.product = self.crawl()
+            if self.link.food:
+                if self.foodsite is None:
 
-            if self.foodsite is None:
+                    new_site = FoodSite(
+                        name=self.name,
+                        food=self.link.food,
+                        petshop=self.link.petshop,
+                        url=self.link.url,
+                        old_price=self.old_price,
+                        price=self.price,
+                        stock=self.in_stock,
+                        cargo=self.shipping,
+                        updated=timezone.now(),
+                    )
 
-                new_site = FoodSite(
-                    name=self.name,
-                    food=self.link.food,
-                    petshop=self.link.petshop,
-                    url=self.link.url,
-                    old_price=self.old_price,
-                    price=self.price,
-                    stock=self.in_stock,
-                    cargo=self.shipping,
-                    updated=timezone.now(),
-                )
+                    new_site.save()
 
-                new_site.save()
+                else:
 
-            else:
+                    self.foodsite.old_price = self.old_price
+                    self.foodsite.price = self.price
+                    self.foodsite.stock = self.in_stock
+                    self.foodsite.cargo = self.shipping
+                    self.foodsite.best_before = self.best_before
 
-                self.foodsite.old_price = self.old_price
-                self.foodsite.price = self.price
-                self.foodsite.stock = self.in_stock
-                self.foodsite.cargo = self.shipping
-                self.foodsite.best_before = self.best_before
-
-                self.foodsite.save()
+                    self.foodsite.save()
 
             ProductLink.objects.filter(id=self.link.id).update(down=0, updated=timezone.now())
 

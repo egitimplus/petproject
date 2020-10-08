@@ -75,7 +75,8 @@ class ProductCrawler:
     def run(self):
         try:
             self.product = self.crawl()
-            self.add_foodsite()
+            if self.link.food:
+                self.add_foodsite()
             ProductLink.objects.filter(id=self.link.id).update(down=0, updated=timezone.now())
 
         except Exception as e:
