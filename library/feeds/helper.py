@@ -1,4 +1,5 @@
 from collections import Iterable
+import re
 
 
 def flatten(items):
@@ -17,3 +18,11 @@ def search_id(match, data):
     eğer varsa elemanı döndürür
     """
     return [element for element in data if element['id'] == match]
+
+
+def truncate(num):
+    return float(re.sub(r'^(\d+\.\d{,4})\d*$',r'\1', str(num)))
+
+
+def dried(ingredient, moisture):
+    return truncate((ingredient / (100 - moisture)) * 100),

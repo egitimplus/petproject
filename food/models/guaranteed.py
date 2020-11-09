@@ -21,3 +21,15 @@ class Guaranteed(models.Model):
     def __str__(self):
         return self.food.name
 
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+
+        total = self.protein + self.fat + self.ash + self.fibre + self.moisture
+
+        if total > 100:
+            self.moisture = 100 - (self.protein + self.fat + self.ash + self.fibre)
+            self.carbs = 0
+
+        else:
+            self.carbs = 100 - total
+
+        super(Guaranteed, self).save()
