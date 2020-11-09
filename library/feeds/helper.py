@@ -25,4 +25,5 @@ def truncate(num):
 
 
 def dried(ingredient, moisture):
-    return truncate((ingredient / (100 - moisture)) * 100),
+    percent = (ingredient / (100 - moisture)) * 100
+    return truncate(percent)

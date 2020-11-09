@@ -1,11 +1,11 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from food.models import Dry, Guaranteed, Calorie
+from food.models import Dry, Guaranteed, Calorie, Food
 from library.feeds import dried
 
 
 @receiver(post_save, sender=Guaranteed)
-def update_food(sender, instance, **kwargs):
+def update_food(sender, instance, created, **kwargs):
 
     d = {
         'protein': dried(instance.protein, instance.moisture),
@@ -42,8 +42,5 @@ def update_food(sender, instance, **kwargs):
         food_id=instance.food_id,
         defaults=e,
     )
-
-
-
 
 
