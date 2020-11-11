@@ -128,7 +128,7 @@ class FoodViewSet(FlexFieldsMixin, ReadOnlyModelViewSet):
             health = queryset.values('health__name', 'health__slug').order_by('health').annotate(count=Count('health'))
             stage = queryset.values('stage__name', 'stage__slug').order_by('stage').annotate(count=Count('stage'))
             package = queryset.values('package__name', 'package__slug').order_by('package').annotate(count=Count('package'))
-            size = queryset.values('size__name', 'size__slug').order_by('size').annotate(count=Count('size'))
+            #size = queryset.values('size__name', 'size__slug').order_by('size').annotate(count=Count('size'))
             company = queryset.values('brand__company__name', 'brand__company__slug').order_by('brand__company').annotate(count=Count('brand__company'))
 
 
@@ -197,6 +197,7 @@ class FoodViewSet(FlexFieldsMixin, ReadOnlyModelViewSet):
                         })
                 filters.append(healths)
 
+            '''
             if len(size) > 0:
                 sizes = {'name': 'Boyut', 'slug': 'size', 'type': 'check', 'value': [], 'items': []}
                 for s in size:
@@ -207,6 +208,7 @@ class FoodViewSet(FlexFieldsMixin, ReadOnlyModelViewSet):
                             'count': s['count']
                         })
                 filters.append(sizes)
+            '''
 
             page = self.paginate_queryset(queryset)
             if page is not None:
