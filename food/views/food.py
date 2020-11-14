@@ -129,20 +129,11 @@ class FoodViewSet(FlexFieldsMixin, ReadOnlyModelViewSet):
             stage = queryset.values('stage__name', 'stage__slug').order_by('stage').annotate(count=Count('stage'))
             package = queryset.values('package__name', 'package__slug').order_by('package').annotate(count=Count('package'))
             #size = queryset.values('size__name', 'size__slug').order_by('size').annotate(count=Count('size'))
-            company = queryset.values('brand__company__name', 'brand__company__slug').order_by('brand__company').annotate(count=Count('brand__company'))
+            #company = queryset.values('brand__company__name', 'brand__company__slug').order_by('brand__company').annotate(count=Count('brand__company'))
 
 
             filters = list()
 
-            if company:
-                companies = {'name': 'Şirket', 'slug': 'company', 'type': 'check', 'value': [], 'items': []}
-                for b in company:
-                    companies['items'].append({
-                        'slug': b['brand__company__slug'],
-                        'name': b['brand__company__name'],
-                        'count': b['count']
-                    })
-                filters.append(companies)
 
             if brand:
                 brands = {'name': 'Marka', 'slug': 'brand', 'type': 'check', 'value': [], 'items': []}
@@ -198,6 +189,16 @@ class FoodViewSet(FlexFieldsMixin, ReadOnlyModelViewSet):
                 filters.append(healths)
 
             '''
+            if company:
+                companies = {'name': 'Şirket', 'slug': 'company', 'type': 'check', 'value': [], 'items': []}
+                for b in company:
+                    companies['items'].append({
+                        'slug': b['brand__company__slug'],
+                        'name': b['brand__company__name'],
+                        'count': b['count']
+                    })
+                filters.append(companies)
+                
             if len(size) > 0:
                 sizes = {'name': 'Boyut', 'slug': 'size', 'type': 'check', 'value': [], 'items': []}
                 for s in size:
