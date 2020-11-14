@@ -165,14 +165,18 @@ class FoodViewSet(FlexFieldsMixin, ReadOnlyModelViewSet):
                         })
                 filters.append(packages)
 
+            dt = []
             if brand:
                 brands = {'name': 'Marka', 'slug': 'brand', 'type': 'check', 'value': [], 'items': []}
                 for b in brand:
-                    brands['items'].append({
+                    dt.append({
                         'slug': b['brand__slug'],
                         'name': b['brand__name'],
                         'count': b['count']
                     })
+
+                brands['items'] = sorted(dt, key=lambda k: k['name'])
+
                 filters.append(brands)
 
             if len(health) > 0:
