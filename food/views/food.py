@@ -131,19 +131,7 @@ class FoodViewSet(FlexFieldsMixin, ReadOnlyModelViewSet):
             #size = queryset.values('size__name', 'size__slug').order_by('size').annotate(count=Count('size'))
             #company = queryset.values('brand__company__name', 'brand__company__slug').order_by('brand__company').annotate(count=Count('brand__company'))
 
-
             filters = list()
-
-
-            if brand:
-                brands = {'name': 'Marka', 'slug': 'brand', 'type': 'check', 'value': [], 'items': []}
-                for b in brand:
-                    brands['items'].append({
-                        'slug': b['brand__slug'],
-                        'name': b['brand__name'],
-                        'count': b['count']
-                    })
-                filters.append(brands)
 
             if category:
                 categories = {'name': 'Kategori', 'slug': 'type', 'type': 'check', 'value': [], 'items': []}
@@ -176,6 +164,16 @@ class FoodViewSet(FlexFieldsMixin, ReadOnlyModelViewSet):
                             'count': p['count']
                         })
                 filters.append(packages)
+
+            if brand:
+                brands = {'name': 'Marka', 'slug': 'brand', 'type': 'check', 'value': [], 'items': []}
+                for b in brand:
+                    brands['items'].append({
+                        'slug': b['brand__slug'],
+                        'name': b['brand__name'],
+                        'count': b['count']
+                    })
+                filters.append(brands)
 
             if len(health) > 0:
                 healths = {'name': 'Etiketler', 'slug': 'health', 'type': 'check', 'value': [], 'items': []}
