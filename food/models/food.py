@@ -18,6 +18,7 @@ class Food(models.Model):
     nutrition_score = models.PositiveSmallIntegerField(default=0)
     total_score = models.PositiveSmallIntegerField(default=0)
     content = models.TextField()
+    desc = models.TextField(null=True, blank=True)
     ingredients = models.ManyToManyField('food.Ingredient', through='food.FoodIngredient', related_name='foods')
     health = models.ManyToManyField('food.FoodFor', related_name='foods')
     size = models.ManyToManyField('food.FoodSize', related_name='foods')
