@@ -8,6 +8,7 @@ class Food(models.Model):
 
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=1024)
+    title = models.CharField(max_length=1024, null=True, blank=True)
     slug = models.SlugField(unique=True, max_length=255)
     manufacturer_url = models.CharField(max_length=1024)
     created = models.DateField(auto_now_add=True)
@@ -26,6 +27,7 @@ class Food(models.Model):
     brand = models.ForeignKey('company.Brand', on_delete=models.CASCADE)
     type = models.ForeignKey('food.FoodType', on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True)
+    serie = models.ForeignKey('company.Serie', on_delete=models.CASCADE)
 
     class Meta:
         ordering = ['name']
