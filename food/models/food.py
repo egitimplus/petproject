@@ -40,12 +40,22 @@ class Food(models.Model):
 
     def save(self, force_insert=False, force_update=False, using=None):
 
+        turkish_translate = str.maketrans("ğĞıİöÖüÜşŞçÇ", "gGiIoOuUsScC")
+
+        brand_name = self.brand.name
+        brand_name.translate(turkish_translate)
+
         if self.serie:
-            slug = self.brand.name + '-' + self.serie.name
+            serie_name = self.serie.name
+            serie_name.translate(turkish_translate)
+
+            slug = brand_name + '-' + serie_name
         else:
-            slug = self.brand.name
+            slug = brand_name
 
         name = self.name[:250] if len(self.name) > 250 else self.name
+        name.translate(turkish_translate)
+
         slug = slug + '-' + name
 
         self.slug = slugify(slug)
