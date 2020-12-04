@@ -27,7 +27,7 @@ class Food(models.Model):
     brand = models.ForeignKey('company.Brand', on_delete=models.CASCADE)
     type = models.ForeignKey('food.FoodType', on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True)
-    serie = models.ForeignKey('company.Serie', on_delete=models.CASCADE)
+    serie = models.ForeignKey('company.Serie', on_delete=models.SET_NULL, blank=True, null=True)
 
     class Meta:
         ordering = ['name']
