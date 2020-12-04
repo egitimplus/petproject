@@ -55,12 +55,11 @@ class Food(models.Model):
             for x in itertools.count(1):
                 if not Food.objects.filter(slug=self.slug).exclude(id=self.id).exists():
                     break
+                self.slug = '%s-%d' % (self.slug, x)
         else:
             for x in itertools.count(1):
                 if not Food.objects.filter(slug=self.slug).exists():
                     break
-
-        if x > 1:
-            self.slug = '%s-%d' % (self.slug, x)
+                self.slug = '%s-%d' % (self.slug, x)
 
         super(Food, self).save()
