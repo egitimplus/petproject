@@ -40,13 +40,27 @@ class Food(models.Model):
 
     def save(self, force_insert=False, force_update=False, using=None):
 
-        if not self.id:
-            name = self.name[:250] if len(self.name) > 250 else self.name
-            self.slug = slugify(name)
+        if self.serie:
+            slug = self.brand.name + '-' + self.serie.name
+        else:
+            slug = self.brand.name
 
+        name = self.name[:250] if len(self.name) > 250 else self.name
+        slug = slug + '-' + name
+
+        self.slug = slugify(slug)
+
+        x = 0
+        if self.id:
+            for x in itertools.count(1):
+                if not Food.objects.filter(slug=self.slug).exclude(id=self.id).exists():
+                    break
+        else:
             for x in itertools.count(1):
                 if not Food.objects.filter(slug=self.slug).exists():
                     break
-                self.slug = '%s-%d' % (self.slug, x)
+
+        if x > 1:
+            self.slug = '%s-%d' % (self.slug, x)
 
         super(Food, self).save()
