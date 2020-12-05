@@ -20,7 +20,7 @@ class IngredientInline(admin.TabularInline):
 @admin.register(Food)
 class FoodAdmin(SummernoteModelAdmin):
     inlines = [GuaranteedInline, IngredientInline, SiteInline]
-    list_display = ('name', 'brand', 'type', 'updated', 'active', 'user')
+    list_display = ('name', 'brand', 'serie', 'type', 'updated', 'active', 'user')
     list_filter = ['brand', 'type', 'package', 'size', 'health', 'stage', 'active', 'user']
     readonly_fields = ["slug", "ingredient_score", "nutrition_score", "total_score"]
     ordering = ['-id']
